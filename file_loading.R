@@ -199,6 +199,69 @@ fullSpectraMetadataProcess <- function(inFile=NULL){
        return(data)
    }
 
+readXL5DataHelper <- function(filepath, filename, type="data", gainshiftvalue=0, use_native_calibration=TRUE) {
+  raw_data <- read.csv(filepath, header = FALSE, stringsAsFactors = FALSE)
+  data_start_row <- which(raw_data[, 1] == "Bin" & raw_data[, 2] == "Intensity")
+  
+  metadata <- raw_data[1:(data_start_row - 1), , drop = FALSE]
+  ev_per_bin <- as.numeric(metadata[metadata[, 1] == "ev_per_bin", 2])
+  num_bins <- as.numeric(metadata[metadata[, 1] == "num_bins", 2])
+  live_time <- as.numeric(metadata[metadata[, 1] == "live_time", 2])
+  
+  if (type == "metadata") {
+    return(data.frame(
+      Spectrum = filename,
+      eVCh = ev_per_bin,
+      LiveTime = live_time,
+      stringsAsFactors = FALSE
+    ))
+  }
+  
+  if (type == "data") {
+    spectral_data <- raw_data[(data_start_row + 1):(data_start_row + num_bins), ]
+    spectral_data$Bin <- as.numeric(spectral_data[, 1])
+    spectral_data$Intensity <- as.numeric(spectral_data[, 2])
+    
+    if (use_native_calibration) {
+      spectral_data$Energy <- spectral_data$Bin * ev_per_bin / 1000
+    } else {
+      spectral_data$Energy <- spectral_data$Bin
+    }
+    
+    if (gainshiftvalue > 0) {
+      spectral_data$Energy <- spectral_data$Energy + gainshiftvalue
+    }
+    
+    spectral_data$CPS <- spectral_data$Intensity / live_time
+    spectral_data$Spectrum <- filename
+    
+    return(spectral_data[, c("Energy", "CPS", "Spectrum")])
+  }
+}
+
+readXL5Data <- function(inFile=NULL, filename=NULL, type="data", gainshiftvalue=0, use_native_calibration=TRUE) {
+  if (is.null(inFile)) return(NULL)
+  
+  if (length(inFile$name) > 1) {
+      data.list <- lapply(1:length(inFile$name), function(i) {
+      filepath <- inFile$datapath[i]
+      file_name <- inFile$name[i]
+      
+      readXL5DataHelper(filepath, filename = file_name, type = type, gainshiftvalue = gainshiftvalue, use_native_calibration = use_native_calibration)
+    })
+    
+    data <- do.call("rbind", data.list)
+    return(data)
+  }
+  
+  if (is.null(filename)) {
+    filename <- tools::file_path_sans_ext(basename(inFile$name))
+  }
+  
+  readXL5DataHelper(inFile$datapath, filename = filename, type = type, gainshiftvalue = gainshiftvalue, use_native_calibration = use_native_calibration)
+}
+
+
 netCountsProcess <- function(inFile=NULL){
     
         if (is.null(inFile)) return(NULL)
@@ -937,6 +1000,8 @@ singleFileLoader <- function(filepath, filetype=NULL, pdzprep=TRUE, use_native_c
                     readSPXData(filepath=filepath, use_native_calibration=use_native_calibration)
                 }  else if(filetype=="PDZ"){
                     readPDZData(filepath=filepath, pdzprep=pdzprep, use_native_calibration=use_native_calibration)
+                }  else if(filetype=="XL5"){
+                    readXL5Data(filepath=filepath, use_native_calibration=use_native_calibration)
                 }
                 
                 

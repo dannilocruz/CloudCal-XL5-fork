@@ -37,9 +37,9 @@ shinyServer(function(input, output, session) {
     
     output$filetypeui <- renderUI({
         if(is.null(input$calfileinput)){
-            selectInput("filetype", label="Filetype", c("CSV", "Aggregate CSV File", "TXT", "Net", "Elio", "MCA", "SPX", "PDZ"), selected="CSV")
+            selectInput("filetype", label="Filetype", c("CSV", "Aggregate CSV File", "TXT", "Net", "Elio", "MCA", "SPX", "PDZ", "XL5"), selected="CSV")
         } else if(!is.null(input$calfileinput)){
-            selectInput("filetype", label="Filetype", c("CSV", "Aggregate CSV File", "TXT", "Net", "Elio", "MCA", "SPX", "PDZ"), selected=oldCalCompatibility())
+            selectInput("filetype", label="Filetype", c("CSV", "Aggregate CSV File", "TXT", "Net", "Elio", "MCA", "SPX", "PDZ", "XL5"), selected=oldCalCompatibility())
         }
         
     })
@@ -71,8 +71,10 @@ shinyServer(function(input, output, session) {
         } else if(input$filetype=="PDZ") {
             fileInput('file1', 'Choose PDZ File', multiple=TRUE,
             accept=c(".pdz"))
+        } else if(input$filetype=="XL5") {
+            fileInput('file1', 'Choose CSV File from NcdReader', multiple=TRUE,
+            accept=c(".csv"))
         }
-        
     })
     
     output$pdzprepui <- renderUI({
@@ -176,6 +178,19 @@ shinyServer(function(input, output, session) {
         
         fullSpectraMetadataProcess(inFile=inFile())
 
+    })
+    
+    
+    readXL5 <-reactive(label="readXL5", {
+        req(input$file1)
+        
+        readXL5Data(inFile=inFile(), gainshiftvalue=gainshiftHold(), use_native_calibration=input$energycal)
+    })
+    
+    readXL5Meta <-reactive(label="readXL5Meta", {
+      req(input$file1)
+      
+      readXL5Data(inFile=inFile(), type="metadata", gainshiftvalue=gainshiftHold(), use_native_calibration=input$energycal)
     })
     
     importedCSV <- reactive(label="importedCSV", {
@@ -486,6 +501,8 @@ shinyServer(function(input, output, session) {
                     readSPX()
                 }  else if(input$filetype=="PDZ"){
                     readPDZ()
+                }  else if(input$filetype=="XL5"){
+                    readXL5()
                 }
                 
                 
@@ -518,7 +535,10 @@ shinyServer(function(input, output, session) {
                 readPDZMetadata()
             } else if(input$filetype=="CSV"){
                 fullSpectraMetadata()
-            } else {
+            } else if(input$filetype=="XL5"){
+                readXL5Meta()
+            }
+              else {
                 NULL
             }
             
@@ -541,6 +561,7 @@ shinyServer(function(input, output, session) {
                 }
             }
             
+            
             data <- data[order(as.character(data$Spectrum)),]
             
             data$Spectrum <- gsub(".pdz", "", data$Spectrum)
@@ -549,6 +570,7 @@ shinyServer(function(input, output, session) {
             data$Spectrum <- gsub(".spt", "", data$Spectrum)
             data$Spectrum <- gsub(".mca", "", data$Spectrum)
             data$Spectrum <- gsub(".spx", "", data$Spectrum)
+            
             
             data
             
@@ -576,8 +598,8 @@ shinyServer(function(input, output, session) {
         })
         
     dataHoldDeconvolution <- reactive({
-            
-            my.cores.mod <- if(length(unique(dataHold()$Spectrum)) < my.cores){
+      
+      my.cores.mod <- if(length(unique(dataHold()$Spectrum)) < my.cores){
                 length(unique(dataHold()$Spectrum))
             } else {
                 my.cores
@@ -1341,9 +1363,11 @@ shinyServer(function(input, output, session) {
                 standard
             }  else if(is.null(calMemory$Calibration$Intensities) && input$filetype=="PDZ"){
                 standard
-            } else if(is.null(calMemory$Calibration$Intensities) && input$filetype=="Net"){
+            }  else if(is.null(calMemory$Calibration$Intensities) && input$filetype=="XL5"){
+                standard
+            }  else if(is.null(calMemory$Calibration$Intensities) && input$filetype=="Net"){
                 colnames(spectra.line.table[2:4])
-            } else if(!is.null(calMemory$Calibration$Intensities)){
+            }  else if(!is.null(calMemory$Calibration$Intensities)){
                 names(calMemory$Calibration$Intensities)
             }
             
@@ -1370,7 +1394,9 @@ shinyServer(function(input, output, session) {
                 spectralLines
             }  else if(input$filetype=="PDZ"){
                 spectralLines
-            } else if(input$filetype=="Net"){
+            }  else if(input$filetype=="XL5"){
+                spectralLines
+            }  else if(input$filetype=="Net"){
                 colnames(spectra.line.table[2:n])
             }
             
@@ -1705,17 +1731,18 @@ shinyServer(function(input, output, session) {
             deconvoluted <- dataHoldDeconvolution()
             
             spectra_stuff <- totalCountsGen(spectra)
+            
             other_spectra_stuff <- merge(spectra_stuff, deconvoluted$Areas[,c("Spectrum", "Baseline")], by="Spectrum", all=T, sort=T)
             other_spectra_stuff
             
         })
         
         
-        
         spectraData <- reactive({
             req(dataHold(), elementallinestousepre(), linevalues[["DF"]])
+          
             line.data <- elementFrame(data=dataHold(), elements=elementallinestousepre())
-            
+          
             table <- linevalues[["DF"]]
             table <- table[complete.cases(table),]
             
@@ -1726,7 +1753,7 @@ shinyServer(function(input, output, session) {
             }
             
             merge(the_data, otherSpectraStuff(), by="Spectrum", all=T, sort=T)
-            
+
         })
         
         wideSpectraData <- reactive({
@@ -1808,7 +1835,9 @@ shinyServer(function(input, output, session) {
                 spectraData()
             }  else if(input$filetype=="PDZ"){
                 spectraData()
-            } else if(input$filetype=="Net"){
+            }  else if(input$filetype=="XL5"){
+                spectraData()
+            }  else if(input$filetype=="Net"){
                 netData()
             }
             
@@ -1837,7 +1866,9 @@ shinyServer(function(input, output, session) {
                 spectraData()
             }  else if(input$filetype=="PDZ"){
                 spectraData()
-            } else if(input$filetype=="Net"){
+            }  else if(input$filetype=="XL5"){
+                spectraData()
+            }  else if(input$filetype=="Net"){
                 netData()
             }
             #calMemory$Calibration$Intensities <- calMemory$Calibration$Intensities[,!colnames(calMemory$Calibration$Intensities) %in% names(otherSpectraStuff[,-1])]
@@ -1857,7 +1888,9 @@ shinyServer(function(input, output, session) {
                 wideSpectraData()
             }  else if(input$filetype=="PDZ"){
                 wideSpectraData()
-            } else if(input$filetype=="Net"){
+            }  else if(input$filetype=="XL5"){
+                wideSpectraData()
+            }  else if(input$filetype=="Net"){
                 netData()
             }
             #calMemory$Calibration$WideIntensities <- calMemory$Calibration$WideIntensities[,!colnames(calMemory$Calibration$WideIntensities) %in% names(otherSpectraStuff[,-1])]
@@ -2465,7 +2498,9 @@ shinyServer(function(input, output, session) {
                 "Spectra"
             }  else if(input$filetype=="PDZ"){
                 "Spectra"
-            } else if (input$filetype=="Net"){
+            }  else if(input$filetype=="XL5"){
+                "Spectra"
+            }  else if (input$filetype=="Net"){
                 "Net"
             }
             
@@ -14964,7 +14999,9 @@ shinyServer(function(input, output, session) {
                 "Spectra"
             }  else if(quantType()=="SPX"){
                 "Spectra"
-            } else if(quantType()=="Net"){
+            }  else if(quantType()=="XL5"){
+                "Spectra"
+            }  else if(quantType()=="Net"){
                 "Net"
             }
             
@@ -18141,6 +18178,9 @@ content = function(file){
         } else if(input$valfiletype=="PDZ") {
             fileInput('loadvaldata', 'Choose PDZ File', multiple=TRUE,
             accept=c(".pdz"))
+        } else if(input$valfiletype=="XL5") {
+            fileInput('loadvaldata', 'Choose CSV file from NcdReader', multiple=TRUE,
+            accept=c(".csv"))
         }
         
     })
@@ -18149,9 +18189,9 @@ content = function(file){
     output$valfiletypeui <- renderUI({
         
         if(is.null(input$calfileinput2)){
-            selectInput("valfiletype", label="Filetype", c("CSV", "Aggregate CSV File", "TXT", "Net", "Elio", "MCA", "SPX", "PDZ"), selected="CSV")
+            selectInput("valfiletype", label="Filetype", c("CSV", "Aggregate CSV File", "TXT", "Net", "Elio", "MCA", "SPX", "PDZ", "XL5"), selected="CSV")
         } else if(!is.null(input$calfileinput2)){
-            selectInput("valfiletype", label="Filetype", c("CSV", "Aggregate CSV File", "TXT", "Net", "Elio", "MCA", "SPX", "PDZ"), selected=calFileContents2()[["FileType"]])
+            selectInput("valfiletype", label="Filetype", c("CSV", "Aggregate CSV File", "TXT", "Net", "Elio", "MCA", "SPX", "PDZ", "XL5"), selected=calFileContents2()[["FileType"]])
         
         }
     
@@ -18210,6 +18250,13 @@ content = function(file){
                 if (is.null(inFile)) return(NULL)
                 
                 importCSVFrame(filepath=inFile$datapath)
+        })
+        
+        
+        readValXL5 <- reactive({
+          
+            readXL5Data(inFile=input$loadvaldata, gainshiftvalue=gainshiftHold())
+          
         })
         
         readValTXT <- reactive({
@@ -18314,6 +18361,8 @@ content = function(file){
                 readValSPX()
             }  else if(input$valfiletype=="PDZ") {
                 readvalPDZ()
+            }  else if(input$valfiletype=="XL5") {
+                readValXL5()
             }
             
             data$CPS <- as.numeric(data$CPS)
@@ -18462,6 +18511,8 @@ content = function(file){
             } else if(input$valfiletype=="PDZ") {
                 "Spectra"
             } else if(input$valfiletype=="Spectra") {
+                "Spectra"
+            } else if(input$valfiletype=="XL5") {
                 "Spectra"
             }
             

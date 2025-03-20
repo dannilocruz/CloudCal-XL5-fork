@@ -5722,7 +5722,7 @@ cloudCalPredict <- function(Calibration, elements.cal, elements, variables, vald
         }
     
     other_spectra_stuff <- totalCountsGen(valdata)
-    other_spectra_stuff <- merge(other_spectra_stuff, deconvoluted_valdata$Areas[,c("Spectrum", "Baseline")], all=T, sort=T)
+    other_spectra_stuff <- merge(other_spectra_stuff, deconvoluted_valdata$Areas[,c("Spectrum", "Baseline")], by="Spectrum", all=T, sort=T)
         
     
     if(is.null(count.list)){
@@ -5794,6 +5794,8 @@ cloudCalPredict <- function(Calibration, elements.cal, elements, variables, vald
             } else if(Calibration[["FileType"]]=="MCA"){
                 "Spectra"
             } else if(Calibration[["FileType"]]=="PDZ"){
+                "Spectra"
+            } else if(Calibration[["FileType"]]=="XL5"){
                 "Spectra"
             } else if(is.null(Calibration[["FileType"]])){
                 "Spectra"
@@ -8338,19 +8340,23 @@ intensity_frame_deconvolution_convert <- function(deconvolution_tibble, name){
 }
 
 deconvolute_complete <- function(spectra_frame, energy_max=NULL){
+  
     if(is.null(energy_max)){
         energy_max <- max(spectra_frame$Energy)
     }
     if(is.data.frame(spectra_frame)){
         spectrum_name <- unique(spectra_frame$Spectrum)
         spectra_tibble <- tibble_convert(spectra_frame)
-        deconvoluted_spectra_tibble <-spectra_tibble %>%
-            xrf_add_smooth_filter(filter = xrf_filter_gaussian(width = 5), .iter = 20) %>%
-            xrf_add_baseline_snip(.values = .spectra$smooth, iterations = 20) %>%
-            xrf_add_deconvolution_gls(.spectra$energy_kev, .spectra$smooth - .spectra$baseline, energy_max_kev = energy_max, peaks = xrf_energies("everything", beam_energy_kev=energy_max))
+        
+        deconvoluted_spectra_tibble <- spectra_tibble %>%
+          xrf_add_smooth_filter(filter = xrf_filter_gaussian(width = 5), .iter = 20) %>%
+          xrf_add_baseline_snip(.values = .spectra$smooth, iterations = 20) %>%
+          xrf_add_deconvolution_gls(.spectra$energy_kev, .spectra$smooth - .spectra$baseline, energy_max_kev = energy_max, peaks = xrf_energies("everything", beam_energy_kev=energy_max))
+
         baseline_spectra <- spectra_frame_baseline_convert(deconvoluted_spectra_tibble)
         deconvoluted_spectra <- spectra_frame_deconvolution_convert(deconvoluted_spectra_tibble)
         deconvoluted_peaks <- intensity_frame_deconvolution_convert(deconvoluted_spectra_tibble$.deconvolution_peaks[[1]], name=spectrum_name)
+
         return(list(Spectra=deconvoluted_spectra, Areas=deconvoluted_peaks, Baseline=baseline_spectra))
     } else if(!is.data.frame(spectra_frame)){
         NULL
