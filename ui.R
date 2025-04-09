@@ -236,6 +236,12 @@ actionButton('linecommit', "Confirm Elements"),
 
 
 tags$hr(),
+
+selectInput("decimal_places", "Decimal Places to Display:", 
+            choices = 0:6, selected = 0),
+
+tags$hr(),
+
 uiOutput('linetypeui'),
 conditionalPanel(
 condition='input.dataset === dataHold()',
@@ -244,7 +250,6 @@ uiOutput('checkboxElementsKbeta'),
 uiOutput('checkboxElementsLalpha'),
 uiOutput('checkboxElementsLbeta'),
 uiOutput('checkboxElementsM')
-
 
 )),
 

@@ -576,7 +576,7 @@ fluorescence.lines.directory <- if(file.exists("data/FluorescenceLines.csv")){
 }
 
 ######Load lines
-lineLibrary <- readRDS("data/LineDefinitions.rdata")
+lineLibrary <- readRDS("data/LineDefinitions2.rdata")
 #temp <- tempfile()
 fluorescence.lines <- lineLibrary$FluorescenceeLines
 Wide <- lineLibrary$Wide

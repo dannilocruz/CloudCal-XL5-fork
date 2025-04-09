@@ -1,13 +1,13 @@
 ######Load lines
 
 k.lines.directory <- if(file.exists("data/K Line.csv")){
-    "data/K Line-Table 1.csv"
+    "data/K Line.csv"
 } else if(!file.exists("data/K Line.csv")){
     "https://raw.githubusercontent.com/leedrake5/CloudCal/master/data/K%20Line.csv"
 }
 
 l.lines.directory <- if(file.exists("data/L Line.csv")){
-    "data/L Line-Table 1.csv"
+    "data/L Line.csv"
 } else if(!file.exists("data/L Line.csv")){
     "https://raw.githubusercontent.com/leedrake5/CloudCal/master/data/L%20Line.csv"
 }
@@ -829,18 +829,18 @@ Tables <- list(H.table=H.table, He.table=He.table, Li.table=Li.table, Be.table=B
 #####Other Set
 
 
-library(XLConnect)
-
-importWorksheets <- function(filename) {
-    # filename: name of Excel file
-    workbook <- loadWorkbook(filename)
-    sheet_names <- getSheets(workbook)
-    names(sheet_names) <- sheet_names
-    sheet_list <- lapply(sheet_names, function(.sheet){
-        readWorksheet(object=workbook, .sheet)})
-}
-
-Wide <- importWorksheets("/Users/lee/Dropbox/Documents/X rays/Fluorescence Table.xlsx")
-
-LineDefinitions <- list(Narrow=Narrow, Wide=Wide, Tables=Tables, FluorescenceeLines=fluorescence.lines)
-saveRDS(LineDefinitions, "~/GitHub/CloudCal/data/LineDefinitions.rdata", compress="xz")
+# library(XLConnect)
+# 
+# importWorksheets <- function(filename) {
+#     # filename: name of Excel file
+#     workbook <- loadWorkbook(filename)
+#     sheet_names <- getSheets(workbook)
+#     names(sheet_names) <- sheet_names
+#     sheet_list <- lapply(sheet_names, function(.sheet){
+#         readWorksheet(object=workbook, .sheet)})
+# }
+# 
+# Wide <- importWorksheets("data/FluorescenceLines.csv")
+# 
+# LineDefinitions <- list(Narrow=Narrow, Wide=Wide, Tables=Tables, FluorescenceeLines=fluorescence.lines)
+# saveRDS(LineDefinitions2, "data/LineDefinitions2.rdata", compress="xz")

@@ -1152,7 +1152,7 @@ shinyServer(function(input, output, session) {
                 geom_segment(data=element, aes(x=Line, xend=Line, y = 0, yend=Intensity), colour="grey50", linetype=2)  +
                 scale_colour_discrete("Spectrum") +
                 coord_cartesian(xlim = ranges$x, ylim = ranges$y)
-
+                
                 
             })
             
@@ -1178,6 +1178,7 @@ shinyServer(function(input, output, session) {
                 coord_cartesian(xlim = ranges$x, ylim = ranges$y) +
                 guides(colour=FALSE)
                 
+                
             })
             
             
@@ -1196,9 +1197,6 @@ shinyServer(function(input, output, session) {
                 element$Intensity <- intensity.norm
                 intensity.base <- (element$Intensity/max(element$Intensity))
                 
-                
-                
-                
                 ggplot(data.summary) +
                 geom_ribbon(aes(x=Energy, ymin=Min, ymax=Max), alpha=0.2, fill="#619CFF", colour="grey20") +
                 geom_line(aes(Energy, Mean), lty=2) +
@@ -1207,7 +1205,6 @@ shinyServer(function(input, output, session) {
                 scale_y_continuous(yLabel()) +
                 coord_cartesian(xlim = ranges$x, ylim = ranges$y) +
                 theme_light(base_size = 15)
-
                 
             })
             
@@ -1275,7 +1272,7 @@ shinyServer(function(input, output, session) {
                 theme_light(base_size = 15) +
                 theme(legend.position = c(0.9, 0.1), legend.title=element_blank()) +
                   guides(colour = FALSE)
-
+                
                 
             })
             
@@ -1984,11 +1981,11 @@ shinyServer(function(input, output, session) {
         tableInput <- reactive({
             
             elements <- elementallinestouse()
-            
+            decimal_places <- as.numeric(input$decimal_places)
             
             select.line.table <- calMemory$Calibration$Intensities
             
-            rounded <- round(select.line.table[,c(elements, "Baseline", "Total")], digits=0)
+            rounded <- round(select.line.table[,c(elements, "Baseline", "Total")], digits=decimal_places)
             full <- data.frame(select.line.table$Spectrum, rounded)
             colnames(full) <- c("Spectrum", elements, "Baseline", "Total")
             
@@ -1998,30 +1995,45 @@ shinyServer(function(input, output, session) {
         wideTableInput <- reactive({
             
             elements <- elementallinestouse()
-            
+            decimal_places <- as.numeric(input$decimal_places)
             
             select.line.table <- calMemory$Calibration$WideIntensities
             
-            rounded <- round(select.line.table[,c(elements, "Baseline", "Total")], digits=0)
+            rounded <- round(select.line.table[,c(elements, "Baseline", "Total")], digits=decimal_places)
             full <- data.frame(select.line.table$Spectrum, rounded)
             colnames(full) <- c("Spectrum", elements, "Baseline", "Total")
             
             full
         })
         
+        # tableInputDeconvoluted <- reactive({
+        #   
+        #     elements <- colnames(calMemory$Calibration$Deconvoluted$Areas)[-1]
+        #     decimal_places <- as.numeric(input$decimal_places)
+        #     
+        #     #select.line.table <- calMemory$Calibration$Deconvoluted$Intensities
+        #     select.line.table <- calMemory$Calibration$Deconvoluted$Areas
+        #     
+        #     rounded <- round(select.line.table[,c(elements, "Baseline")], digits=decimal_places)
+        #     full <- data.frame(select.line.table$Spectrum, rounded)
+        #     colnames(full) <- c("Spectrum", elements, "Baseline")
+        #     
+        #     full
+        # })
+        
         tableInputDeconvoluted <- reactive({
-            
-            elements <- colnames(calMemory$Calibration$Deconvoluted$Areas)[-1]
-            
-            
-            #select.line.table <- calMemory$Calibration$Deconvoluted$Intensities
-            select.line.table <- calMemory$Calibration$Deconvoluted$Areas
-            
-            rounded <- round(select.line.table[,c(elements, , "Baseline", "Total")], digits=0)
-            full <- data.frame(select.line.table$Spectrum, rounded)
-            colnames(full) <- c("Spectrum", elements, "Baseline", "Total")
-            
-            full
+          
+          elements <- colnames(calMemory$Calibration$Deconvoluted$Areas)[-1]
+          decimal_places <- as.numeric(input$decimal_places)
+          
+          #select.line.table <- calMemory$Calibration$Deconvoluted$Intensities
+          select.line.table <- calMemory$Calibration$Deconvoluted$Areas
+          
+          rounded <- round(select.line.table[,elements], digits=decimal_places)
+          full <- data.frame(select.line.table$Spectrum, rounded)
+          colnames(full) <- c("Spectrum", elements)
+          
+          full
         })
         
         #wideTableInputDeconvoluted <- reactive({
