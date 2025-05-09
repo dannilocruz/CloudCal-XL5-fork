@@ -135,11 +135,11 @@ shinyServer(function(input, output, session) {
     
     gainshiftHold <- reactive({
         
-        #if(input$advanced==TRUE){
-        #    input$gainshift
-        #} else if(input$advanced==FALSE){
+        if(input$advanced==TRUE){
+            input$gainshift
+        } else if(input$advanced==FALSE){
             0
-        #}
+        }
         
     })
     
@@ -2006,36 +2006,22 @@ shinyServer(function(input, output, session) {
             full
         })
         
-        # tableInputDeconvoluted <- reactive({
-        #   
-        #     elements <- colnames(calMemory$Calibration$Deconvoluted$Areas)[-1]
-        #     decimal_places <- as.numeric(input$decimal_places)
-        #     
-        #     #select.line.table <- calMemory$Calibration$Deconvoluted$Intensities
-        #     select.line.table <- calMemory$Calibration$Deconvoluted$Areas
-        #     
-        #     rounded <- round(select.line.table[,c(elements, "Baseline")], digits=decimal_places)
-        #     full <- data.frame(select.line.table$Spectrum, rounded)
-        #     colnames(full) <- c("Spectrum", elements, "Baseline")
-        #     
-        #     full
-        # })
-        
         tableInputDeconvoluted <- reactive({
-          
-          elements <- colnames(calMemory$Calibration$Deconvoluted$Areas)[-1]
-          decimal_places <- as.numeric(input$decimal_places)
-          
-          #select.line.table <- calMemory$Calibration$Deconvoluted$Intensities
-          select.line.table <- calMemory$Calibration$Deconvoluted$Areas
-          
-          rounded <- round(select.line.table[,elements], digits=decimal_places)
-          full <- data.frame(select.line.table$Spectrum, rounded)
-          colnames(full) <- c("Spectrum", elements)
-          
-          full
+
+            elements <- colnames(calMemory$Calibration$Deconvoluted$Areas)[-1]
+            decimal_places <- as.numeric(input$decimal_places)
+
+            #select.line.table <- calMemory$Calibration$Deconvoluted$Intensities
+            select.line.table <- calMemory$Calibration$Deconvoluted$Areas
+
+            rounded <- round(select.line.table[,c(elements, "Baseline")], digits=decimal_places)
+            full <- data.frame(select.line.table$Spectrum, rounded)
+            colnames(full) <- c("Spectrum", elements, "Baseline")
+
+            full
         })
         
+
         #wideTableInputDeconvoluted <- reactive({
             
             #elements <- elementallinestouse()
@@ -18771,13 +18757,15 @@ content = function(file){
         #     list(Narrow=fullInputValCountsDeconvoluted(), Wide=fullInputValCountsWideDeconvoluted())
         #})
         
-        cloudCalPredictions <- reactive({
-            
-            cloudCalPredict(Calibration=calFileContents2(), count.list=countList(), elements.cal=calValElements(), variables=calVariableElements(), valdata=myValData(), deconvoluted_valdata=myDeconvolutedValData(), rounding=4, multiplier=1)
-
-            
-        })
         
+
+        cloudCalPredictions <- reactive({
+
+
+          cloudCalPredict(Calibration=calFileContents2(), count.list=countList(), elements.cal=calValElements(), variables=calVariableElements(), valdata=myValData(), deconvoluted_valdata=myDeconvolutedValData(), rounding=4, multiplier=1)
+
+
+        })
         
         tableInputValQuantPre <- reactive({
             if(input$error=="None"){

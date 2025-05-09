@@ -228,7 +228,7 @@ readXL5DataHelper <- function(filepath, filename, type="data", gainshiftvalue=0,
       spectral_data$Energy <- spectral_data$Bin
     }
     
-    if (gainshiftvalue > 0) {
+    if (gainshiftvalue != 0) {
       spectral_data$Energy <- spectral_data$Energy + gainshiftvalue
     }
     

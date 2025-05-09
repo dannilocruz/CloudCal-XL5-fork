@@ -576,7 +576,7 @@ fluorescence.lines.directory <- if(file.exists("data/FluorescenceLines.csv")){
 }
 
 ######Load lines
-lineLibrary <- readRDS("data/LineDefinitions2.rdata")
+lineLibrary <- readRDS("data/LineDefinitions.rdata")
 #temp <- tempfile()
 fluorescence.lines <- lineLibrary$FluorescenceeLines
 Wide <- lineLibrary$Wide
@@ -2379,10 +2379,10 @@ just_spectra_summary_apply <- cmpfun(just_spectra_summary_apply)
 
 
 lucas_simp_prep_xrf <- function(spectra.line.table, element.line, slope.element.lines, intercept.element.lines=NULL) {
-    
-    
+
+
     intensity <- spectra.line.table[,element.line]
-    
+
     if(!is.null(intercept.element.lines)){
         intercept.none <- rep(0, length(spectra.line.table[,1]))
         lucas.intercept.table.x <- data.frame(spectra.line.table, intercept.none, intercept.none, stringsAsFactors=FALSE)
@@ -2390,24 +2390,28 @@ lucas_simp_prep_xrf <- function(spectra.line.table, element.line, slope.element.
         lucas.intercept.table <- data.frame(first=rowSums(lucas.intercept.table.x[,c(intercept.element.lines, "None", "NoneNull")]), stringsAsFactors=FALSE)
         lucas.intercept <- lucas.intercept.table$first
     }
-    
+
     slope.none <- rep(1, length(spectra.line.table[,1]))
     lucas.slope.table <- data.frame(spectra.line.table, slope.none, stringsAsFactors=FALSE)
     colnames(lucas.slope.table) <- c(names(spectra.line.table), "None")
-    
+
     lucas.slope <- data.frame(lucas.slope.table[,slope.element.lines], stringsAsFactors=FALSE)
     colnames(lucas.slope) <- slope.element.lines
-    
+
     predict.frame.luk <- if(is.null(intercept.element.lines)){
         data.frame(Intensity=intensity,lucas.slope, stringsAsFactors=FALSE)
     } else if(!is.null(intercept.element.lines)){
         data.frame(Intensity=((1+intensity/(intensity+lucas.intercept))-lucas.intercept/(intensity+lucas.intercept)),lucas.slope, stringsAsFactors=FALSE)
     }
-    
+
     predict.frame.luk
-    
-    
+
+
 }
+
+
+
+
 lucas_simp_prep_xrf <- cmpfun(lucas_simp_prep_xrf)
 
 
@@ -5723,7 +5727,6 @@ cloudCalPredict <- function(Calibration, elements.cal, elements, variables, vald
     
     other_spectra_stuff <- totalCountsGen(valdata)
     other_spectra_stuff <- merge(other_spectra_stuff, deconvoluted_valdata$Areas[,c("Spectrum", "Baseline")], by="Spectrum", all=T, sort=T)
-        
     
     if(is.null(count.list)){
         count.list <- list(
@@ -5733,9 +5736,7 @@ cloudCalPredict <- function(Calibration, elements.cal, elements, variables, vald
         count.list$Area <- merge(deconvolutionIntensityFrame(deconvoluted_valdata$Areas, count.list$Narrow), other_spectra_stuff, by="Spectrum", all=T, sort=T)
     }
     
-
-    
-    
+    variables <- c(variables, "Baseline", "Total")
     #count.table <- data.frame(fullInputValCounts())
     the.cal <- Calibration[["calList"]]
     #elements.cal <- calValElements()
@@ -5745,6 +5746,7 @@ cloudCalPredict <- function(Calibration, elements.cal, elements, variables, vald
     #valdata <- myValData()
         #elements <- fluorescence.lines$Symbol[sort(order(fluorescence.lines$Symbol)[elements])]
 
+    
         cal_type <- function(element){
     
     
@@ -5807,7 +5809,9 @@ cloudCalPredict <- function(Calibration, elements.cal, elements, variables, vald
             
             #pblapply(elements, function(x) tryCatch(predicted.frame[,x] <-
         
+        
         for(x in elements){
+
             values <-
             if(val.data.type=="Spectra" && the.cal[[x]][[1]]$CalTable$Deconvolution=="None" && cal_type(x)==1 && the.cal[[x]][[1]]$CalTable$NormType[1]==1){
                 mclPred(
@@ -5855,6 +5859,8 @@ cloudCalPredict <- function(Calibration, elements.cal, elements, variables, vald
                             confidence=confidence
                 )
             } else if(val.data.type=="Spectra" && the.cal[[x]][[1]]$CalTable$Deconvolution=="None" && cal_type(x)==3 && the.cal[[x]][[1]]$CalTable$NormType[1]==1){
+              # That's the one I'm using
+              
                  mclPred(
                     object=the.cal[[x]][[2]],
                     newdata=lucas_simp_prep_xrf(
@@ -5870,6 +5876,7 @@ cloudCalPredict <- function(Calibration, elements.cal, elements, variables, vald
                         ymax=the.cal[[x]][[1]][1]$Scale$Max,
                         confidence=confidence
                  )
+
             } else if(val.data.type=="Spectra" && the.cal[[x]][[1]]$CalTable$Deconvolution=="None" && cal_type(x)==3 && the.cal[[x]][[1]]$CalTable$NormType[1]==2){
                 mclPred(
                     object=the.cal[[x]][[2]],
