@@ -2043,6 +2043,11 @@ shinyServer(function(input, output, session) {
             rownames(base.table) <- tableInput()$Spectrum
             base.table
             
+            DT::datatable(
+              base.table,
+              options = list(pageLength = 100)
+            )
+            
         })
         
         output$mytable2 <- renderDataTable({
@@ -2051,6 +2056,11 @@ shinyServer(function(input, output, session) {
             rownames(base.table) <- wideTableInput()$Spectrum
             base.table
             
+            DT::datatable(
+              base.table,
+              options = list(pageLength = 100)
+            )
+            
         })
         
         output$mytable3 <- renderDataTable({
@@ -2058,6 +2068,11 @@ shinyServer(function(input, output, session) {
             base.table <- tableInputDeconvoluted()[,-1]
             rownames(base.table) <- tableInputDeconvoluted()$Spectrum
             base.table
+            
+            DT::datatable(
+              base.table,
+              options = list(pageLength = 100)
+            )
             
         })
         

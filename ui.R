@@ -237,8 +237,8 @@ actionButton('linecommit', "Confirm Elements"),
 
 tags$hr(),
 
-selectInput("decimal_places", "Decimal Places to Display:", 
-            choices = 0:6, selected = 0),
+sliderInput("decimal_places", "Decimal Places to Display:", 
+            min = 0, max = 6, value = 6, step = 1),
 
 tags$hr(),
 
