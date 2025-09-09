@@ -1,95 +1,93 @@
-# CloudCal
+# CloudCal-XL5
 
-This app will allow you to build & apply calibrations for the Tracer & Artax series of XRF devices. It (currently) works with .csv files produced from S1PXRF, PDZ versions 24 and 25, .spx files, Elio spectra (.spt), .mca files, and .csv files of net counts produced from Artax (7.4 or later).
-
-![alt text](https://raw.githubusercontent.com/leedrake5/CloudCal/master/Images/plantexample.png)
+Unofficial fork of CloudCal, adapted for Thermo Scientific Niton XL5 analyzers. Not affiliated with the original maintainers.
 
 
-## How it works
-It is based on the Lucas-Tooth and Price (1961) algorithm<sup>1</sup>, though I have added modifications to make it more robust (it's really hard to get a validation plot slope that isn't 1). The algorithm goes like this:
+>**Repository:** cloudCal-XL5-fork<br>
+>**Upstream project:** CloudCal (GPL-3.0)<br>
+>**License:** GPL-3.0
 
-C<sub>i</sub> = r<sub>0</sub> + I<sub>i</sub>[r<sub>i</sub> + Σ(r<sub>in</sub>I<sub>n</sub>]
+---
 
-Where C<sub>i</sub> represents the concentration of element, r<sub>0</sub> is the intercept/empirical constant for element i, r<sub>i</sub> is the slope/empirical coefficient for intensity of element i, r<sub>in</sub> is the slope/empirical constant for effect of element n on element i, I <sub>i</sub> is the net intensity of element i, and I<sub>n</sub> is the net intensity of element n. This equation is based on a simple linear model, 
+## How to use
 
-y = mx + b
+* Website: 
+* Containers (Docker Hub): 
 
-In which y is C<sub>i</sub>, b is r<sub>0</sub>, m is r<sub>i</sub>, and I<sub>i</sub> is x (eg. C<sub>i</sub> = r<sub>i</sub>I<sub>i</sub> + r<sub>0</sub>). The additional variables present in the Lukas-Tooth equation indicate a slope correction for an element which influences the fluorescence of the element to be analyzed (subscript i represents the element being analyzed, subscript n represents the influencing element). 
+> Local install instructions may be added later.
 
-The algorithm is simply a way to a) estimate concentrations from the x-ray spectrum, b) account for variation from the spectrum itself, and c) make results from instruments comparable to one another reliably<sup>2</sup>. That said, you do not have to use a Lucas-Tooth model to calibrate - in the app you can also choose linear/nonlinear models. 
+---
 
+## What is this fork?
 
-## How to use the app
+cloudCal-XL5 is an unofficial fork of the CloudCal app tailored for Thermo Scientific Niton XL5 pXRF workflows. It is designed to interoperate with [TropiCal](https://github.com/dannilocruz/TropiCal):
 
-First, you will need to download a copy of R appropriate for your computer (Mac, Windows, or Linux): 
+* TropiCal exports XL5 raw spectra (with metadata),
+* cloudCal‑XL5 builds empirical calibrations and produces `.quant` files, and
+* TropiCal uses `.quant` to quantify raw XL5 spectra (exporting majors as oxides wt% and traces in ppm).
 
->https://www.r-project.org/
+### Key additions in this fork
 
-Next, you will need to install a package called 'shiny' to run it locally. You can do so by pasting this line into the R consul when you launch it:
+* XL5 I/O: readers/writers and handlers for Niton XL5 outputs.
+* TropiCal compatibility: accepts TropiCal raw spectra and produces `.quant` files for TropiCal to use.
+* Bugfixes & ergonomics specific to XL5 datasets.
 
->install.packages(c("Rcpp", "shiny"))
+> This is not an official release of CloudCal. Please file issues here (not in the upstream repo) for XL5/TropiCal‑specific behavior.
 
+---
 
-It will ask you to choose a download mirror (you can choose anyone, the result is the same). Then, to run the software:
+## How the calibration works (brief)
 
->shiny::runGitHub("leedrake5/CloudCal")
+Calibrations follow the Lucas–Tooth and Price approach used by CloudCal. You can also choose alternative linear/nonlinear models as supported by CloudCal.
 
-The first time it runs, it may take some time to download the supporting software. After that, you should be good to go. If you'd like to download a copy and run it offline, you can instead download it from GitHub (https://github.com/leedrake5/CloudCal) and then run it locally:
+---
 
->shiny::runApp("your/computer/directory/CloudCal")
+## Supported input/output
 
-## What format for the data?
-Currently, the data operates with .csv files exported from either S1PXRF or Artax, PDZ versions 24 and 25 (expiremental), and all three data formats associated with XG Lab's Elio (.spt, .spx, and .mca).
+Everything CloudCal supports plus the XL5/TropiCal pathway:
 
-To export from S1PXRF, go to Setup -> Group Conversion. Then choose a directory with PDZ files and select 'CSV' as the output. I'd also choose 'Replace duration with live time' to make sure dead time in the spectra is not a problem. This will produce the CSV files that you need to run in the app.
+* Inputs supported by CloudCal (upstream): `.csv` from S1PXRF; PDZ v24/v25; `.spx`; Elio `.spt`; `.mca`; Artax net‑counts `.csv`.
+* XL5 / TropiCal workflow:
 
-For Artax, follow all the same steps you know (if you don't know, visit www.xrf.guru). Instead of going to Export -> All Results to Excel, go to Export -> All Results. This will create CSV files that can be read into the app as well. 
+  * Input: XL5 raw spectra exported by TropiCal (with metadata).
+  * Output: `.quant` calibration files produced by cloudCal‑XL5, which TropiCal uses for empirical quantification.
 
-Quick note - with the new Tracer 5i, Bruker has changed the format of PDZ files. That means data taken with the 5i is not compatible with the IISD/IVSD/IIV+, and vice-versa. Good news is that the most recent copy of Artax (8+) can handle both, but older copies won't. You'll need to convert from v25 (5i version) to v24 (Classic Tracer) to bring them in to S1PXRF - you can do this with CalToolkit or any other software Bruker provides. You can upload the PDZ files directly, but there may be problems - it doesn't work perfectly yet.
+---
 
-## What is in the .quant file?
+## Related repositories
 
-This filetype is an open-source way of holding all the data in a file. If you want to see what it looks like, enter the following code into R:
+* CloudCal (upstream): [https://github.com/leedrake5/CloudCal](https://github.com/leedrake5/CloudCal)
+* CloudCal‑XL5‑fork (this repo for `.quant` creation): [https://github.com/dannilocruz/CloudCal-XL5-fork](https://github.com/dannilocruz/CloudCal-XL5-fork)
+* TropiCal (companion app): [https://github.com/dannilocruz/TropiCal](https://github.com/dannilocruz/TropiCal)
 
->str(readRDS("location/of/your/file.quant"))
+---
 
-The result will be a lot of information, but here is the basic layout:
+## Citing
 
-	>$FileType (this defines the kind of csv you upload)
-	>$Units (these are the units you entered into the app - one type for everything) 
-	>$Spectra (this includes all the spectra of the csv files used to make the cal)
-	>$Intensities (these are the intensities of the elements you choose in the 'Counts' tab)
-	>$Values (these are the intensity data you put into the app)
-	>$calList (this is the holder for all the element models defined by you) 
-		>$Element this is all the data for one element
-			>$CalTable (this has all the settings for the element)
-				>$CalType (this is whether or not Lucas-Tooth is used)
-				>$NormType (this is they type of normalization you used)
-				>$Min (this is the minimum normalization energy you chose)
-				>$Max (this is the maximum normalization energy you chose)
-			>$Slope (these are the slope variables you choose if you make a Lucas-Tooth cal)
-			>$Intercept (these are the intercept variables you choose if you make a Lucas-Tooth cal)
-			>$StandardsUsed (this is a list of the standards you used for the regressions) 
-			>$Model (this is the parameters of the model you chose) 
+If you use this fork, please cite both the upstream CloudCal and this fork:
 
-## Will this support other formats/XRF instruments?
+* CloudCal: Drake, B.L. 2018. *CloudCal v3.0*. GitHub. doi: 10.5281/zenodo.2596154.
+* This fork: cloudCal‑XL5-fork, version/tag, GitHub: 
 
-No reason not to - I started with the Tracer because it was the easiest to work with & the best for custom quantification. The app has since been expanded to include Artax, the Picofox, and the Elio. If you have other instruments you'd like to add, let me know and I can see if I can do it. It will be some time before I can look into it though. Keep in mind that the software would need a heavy lift from multiple folks to read binary files - these are the proprietary company files that have non-open source file types.
+---
 
-## How to cite this software
-You can cite this Github page: 
+## License
 
-v3.0
-Drake, B.L. 2018. CloudCal v3.0. GitHub. https://github.com/leedrake5/CloudCal. doi: 10.5281/zenodo.2596154
-[![DOI](https://zenodo.org/badge/78561304.svg)](https://zenodo.org/badge/latestdoi/78561304)
+This repository is distributed under GPL‑3.0, the same license as CloudCal.
 
-## References
+* Original copyright and license notices are preserved.
 
-Kuhn, M. 2008. Building predictive models iin R using the caret package. Journal of Statsitical Software. Journal of Statistical Software 28(5): 1-26
-Liaw, A.,  Wiener, M. 2002. Classification and Regression by randomForest. R News 2(3): 18--22
-Lucas-Tooth, H.J., Price, B.J. 1961. A Mathematical Method for the Investigation of Interelement Effects in X-Ray Fluorescence Analysis Metallurgia 64: 149–152
-Speakman, R.J., Shackley, M.S. 2013. Silo science and portable XRF in archaeology: a response to Frahm. Journal of Archaeological Science 40: 1435-1443
-Venables, W. N.,  Ripley, B. D. 2002. Modern Applied Statistics with S. Fourth Edition. Springer, New York. ISBN 0-387-95457-0
+See `LICENSE` for details.
 
+---
 
+## Acknowledgments
 
+* CloudCal creators and contributors for the original project.
+* Users and collaborators providing XL5 datasets and feedback.
+
+---
+
+## Contributing & Support
+
+This is an unofficial fork. For XL5/TropiCal‑specific issues and enhancements, please use this repository’s Issues. For (non‑XL5) concerns, refer to the original CloudCal project.
