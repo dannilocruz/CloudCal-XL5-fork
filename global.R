@@ -7446,10 +7446,15 @@ cloudCalPredict <- function(Calibration, elements.cal, elements, variables, vald
 
         
 
-        predicted.data.table <- round(predicted.frame[,-1]*multiplier, rounding)
+        #predicted.data.table <- round(predicted.frame[,-1]*multiplier, rounding)
 
-        #predicted.values <- t(predicted.values)
-        data.frame(Spectrum=predicted.frame$Spectrum, predicted.data.table, stringsAsFactors=FALSE)
+        ##predicted.values <- t(predicted.values)
+        #data.frame(Spectrum=predicted.frame$Spectrum, predicted.data.table, stringsAsFactors=FALSE)
+        
+        
+        predicted.data.table <- as.data.frame(round(predicted.frame[,-1] * multiplier, rounding))
+        colnames(predicted.data.table) <- colnames(predicted.frame)[-1]
+        data.frame(Spectrum = predicted.frame$Spectrum, predicted.data.table, stringsAsFactors = FALSE)
         
         
 }
@@ -8009,6 +8014,8 @@ cloudCalPredictErrorEQM <- function(Calibration, predictions=NULL, elements.cal,
         energy.max
     }
     
+    variables <- c(variables, "Baseline", "Total")
+    
     error_list <- lmSEapprox(calibration=Calibration, use_predictions=TRUE, parallel=FALSE)
     
     if(is.null(predictions)){
@@ -8062,6 +8069,8 @@ cloudCalPredictErrorYHat <- function(Calibration, predictions=NULL, elements.cal
     } else if(!is.null(energy.max)){
         energy.max
     }
+    
+    variables <- c(variables, "Baseline", "Total")
     
     error_list <- lmSEapprox(calibration=Calibration, use_predictions=TRUE, parallel=FALSE)
     

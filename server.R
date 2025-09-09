@@ -72,7 +72,7 @@ shinyServer(function(input, output, session) {
             fileInput('file1', 'Choose PDZ File', multiple=TRUE,
             accept=c(".pdz"))
         } else if(input$filetype=="XL5") {
-            fileInput('file1', 'Choose CSV File from NcdReader', multiple=TRUE,
+            fileInput('file1', 'Choose CSV File from tropiCal', multiple=TRUE,
             accept=c(".csv"))
         }
     })
@@ -3057,14 +3057,14 @@ shinyServer(function(input, output, session) {
         
         output$comptonMinInput <- renderUI({
             req(input$radiocal)
-            numericInput('comptonmin', label=h6("Min"), step=0.001, value=normMinSelection(), min=0, max=50, width='30%')
-            
+            #numericInput('comptonmin', label=h6("Min"), step=0.001, value=normMinSelection(), min=0, max=50, width='30%')
+            numericInput('comptonmin', label=h6("Min"), step=0.001, value=20.5, min=0, max=50, width='30%')
         })
         
         output$comptonMaxInput <- renderUI({
             req(input$radiocal)
-            numericInput('comptonmax', label=h6("Max"), step=0.001, value=normMaxSelection(), min=0, max=50, width='30%')
-            
+            #numericInput('comptonmax', label=h6("Max"), step=0.001, value=normMaxSelection(), min=0, max=50, width='30%')
+            numericInput('comptonmax', label=h6("Max"), step=0.001, value=21.5, min=0, max=50, width='30%')
         })
         
         
@@ -10329,7 +10329,7 @@ shinyServer(function(input, output, session) {
             
             standard.table.summary
             
-        }, options =list(aoColumnDefs = list(list(sClass="alignRight",aTargets=c(list(2), list(3),list(4),list(5))))  ))
+        }, options =list(pageLength = 100, aoColumnDefs = list(list(sClass="alignRight",aTargets=c(list(2), list(3),list(4),list(5))))  ))
         
         output$downloadStandards <- downloadHandler(
         filename = function() { paste0(input$calname, "_", input$calcurveelement, "_Standards", '.csv') },
@@ -14818,9 +14818,8 @@ shinyServer(function(input, output, session) {
         })
         
         output$caliibrationprogresstable <- renderDataTable({
-            calibrationProgressSoFar()
-        })
-        
+          calibrationProgressSoFar()
+        }, options = list(pageLength = 100))        
         
         spectraLineTableExport <- reactive({
             calMemory$Calibration$Intensities[,!colnames(calMemory$Calibration$Intensities) %in% names(otherSpectraStuff()[,-1])]
@@ -18192,7 +18191,7 @@ content = function(file){
             fileInput('loadvaldata', 'Choose PDZ File', multiple=TRUE,
             accept=c(".pdz"))
         } else if(input$valfiletype=="XL5") {
-            fileInput('loadvaldata', 'Choose CSV file from NcdReader', multiple=TRUE,
+            fileInput('loadvaldata', 'Choose CSV file from tropiCal', multiple=TRUE,
             accept=c(".csv"))
         }
         
@@ -18740,22 +18739,17 @@ content = function(file){
         
         
         output$myvaltable1 <- renderDataTable({
-            
-            roundNumericColumns(df= fullInputValCounts(), digits=input$resultrounding2)
-            
-        })
+          roundNumericColumns(df = fullInputValCounts(), digits = input$resultrounding2)
+        }, options = list(pageLength = 100))
         
         output$myvaltablewide <- renderDataTable({
-            
-            roundNumericColumns(df=fullInputValCountsWide(), digits=input$resultrounding2)
-            
-        })
+          roundNumericColumns(df = fullInputValCountsWide(), digits = input$resultrounding2)
+        }, options = list(pageLength = 100))
         
         output$myvaltabledeconvoluted <- renderDataTable({
-            
-            roundNumericColumns(df=fullInputValCountsDeconvoluted(), digits=input$resultrounding2)
-            
-        })
+          roundNumericColumns(df = fullInputValCountsDeconvoluted(), digits = input$resultrounding2)
+        }, options = list(pageLength = 100))
+        
         
         #output$myvaltablewidedeconvoluted <- renderDataTable({
             
@@ -18829,10 +18823,9 @@ content = function(file){
         })
         
         output$myvaltable2 <- renderDataTable({
-            
-            tableInputValQuant()
-            
-        })
+          
+          tableInputValQuant()
+        }, options = list(pageLength = 100))
         
         
         # valtest <- lapply(valelements, function(x) predict(calsList[[x]], as.data.frame(val.line.table[x])))
