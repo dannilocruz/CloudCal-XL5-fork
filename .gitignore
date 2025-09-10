@@ -1,25 +1,16 @@
 .DS_Store
 .Rhistory
+.Rapp.history
 .RData
 .Ruserdata
 .Rproj.user/
 *.Rproj
-# comment the next line if you want to track .Rprofile
 .Rprofile
 
-renv/library/
-renv/staging/
-rsconnect/
+.dockerignore
+Dockerfile
 
-*.tmp
-*.log
-*.zip
-*.csv
-*.xlsx
+renv.lock
+renv/
 
 data/.Rapp.history
-packages/
-blobs/
-*.ncd
-*.sqlite
-*.db
