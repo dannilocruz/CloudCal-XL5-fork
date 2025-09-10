@@ -1,3 +1,6 @@
+# This file derives from CloudCal (GPL-3.0). 
+# Modifications by Danilo Cruz (2025): adapted for Niton XL5 I/O and TropiCal compatibility.
+# See LICENSE for details.
 
 options(shiny.maxRequestSize=30*1024^40)
 

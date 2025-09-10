@@ -1,3 +1,7 @@
+# This file derives from CloudCal (GPL-3.0). 
+# Modifications by Danilo Cruz (2025): adapted for Niton XL5 I/O and TropiCal compatibility.
+# See LICENSE for details.
+
 cloudcal <- "Loaded"
 
 Sys.setenv(OMP_NUM_THREADS="1", OPENBLAS_NUM_THREADS="1", MKL_NUM_THREADS="1", BLIS_NUM_THREADS="1")
