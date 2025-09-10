@@ -24,7 +24,7 @@ cloudCal-XL5 is an unofficial fork of the [CloudCal](https://github.com/leedrake
 * cloudCal‑XL5 builds empirical calibrations and produces `.quant` files, and
 * TropiCal uses `.quant` to quantify raw XL5 spectra (exporting majors as oxides wt% and traces in ppm).
 
-### Key additions in this fork
+## Key additions in this fork
 
 * XL5 I/O: readers/writers and handlers for Niton XL5 outputs.
 * TropiCal compatibility: accepts TropiCal raw spectra and produces `.quant` files for TropiCal to use.
