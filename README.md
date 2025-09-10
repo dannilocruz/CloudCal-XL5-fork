@@ -11,16 +11,14 @@ Unofficial fork of CloudCal, adapted for Thermo Scientific Niton XL5 analyzers. 
 
 ## How to use
 
-* Website: 
-* Containers (Docker Hub): 
-
-> Local install instructions may be added later.
+* Website: https://cloudcalxl5.danilocruz.earth
+* Containers (Docker Hub): dannilocruz/cloudcal-xl5-fork
 
 ---
 
 ## What is this fork?
 
-cloudCal-XL5 is an unofficial fork of the CloudCal app tailored for Thermo Scientific Niton XL5 pXRF workflows. It is designed to interoperate with [TropiCal](https://github.com/dannilocruz/TropiCal):
+cloudCal-XL5 is an unofficial fork of the [CloudCal](https://github.com/leedrake5/CloudCal) app tailored for Thermo Scientific Niton XL5 pXRF workflows. It is designed to interoperate with [TropiCal](https://github.com/dannilocruz/TropiCal):
 
 * TropiCal exports XL5 raw spectra (with metadata),
 * cloudCal‑XL5 builds empirical calibrations and produces `.quant` files, and
@@ -32,8 +30,6 @@ cloudCal-XL5 is an unofficial fork of the CloudCal app tailored for Thermo Scien
 * TropiCal compatibility: accepts TropiCal raw spectra and produces `.quant` files for TropiCal to use.
 * Bugfixes & ergonomics specific to XL5 datasets.
 
-> This is not an official release of CloudCal. Please file issues here (not in the upstream repo) for XL5/TropiCal‑specific behavior.
-
 ---
 
 ## How the calibration works (brief)
@@ -44,20 +40,14 @@ Calibrations follow the Lucas–Tooth and Price approach used by CloudCal. You c
 
 ## Supported input/output
 
-Everything CloudCal supports plus the XL5/TropiCal pathway:
-
-* Inputs supported by CloudCal (upstream): `.csv` from S1PXRF; PDZ v24/v25; `.spx`; Elio `.spt`; `.mca`; Artax net‑counts `.csv`.
-* XL5 / TropiCal workflow:
-
-  * Input: XL5 raw spectra exported by TropiCal (with metadata).
-  * Output: `.quant` calibration files produced by cloudCal‑XL5, which TropiCal uses for empirical quantification.
+Everything CloudCal supports plus `.csv` files from TropiCal:
 
 ---
 
 ## Related repositories
 
 * CloudCal (upstream): [https://github.com/leedrake5/CloudCal](https://github.com/leedrake5/CloudCal)
-* CloudCal‑XL5‑fork (this repo for `.quant` creation): [https://github.com/dannilocruz/CloudCal-XL5-fork](https://github.com/dannilocruz/CloudCal-XL5-fork)
+* CloudCal‑XL5‑fork (this repo): [https://github.com/dannilocruz/CloudCal-XL5-fork](https://github.com/dannilocruz/CloudCal-XL5-fork)
 * TropiCal (companion app): [https://github.com/dannilocruz/TropiCal](https://github.com/dannilocruz/TropiCal)
 
 ---
@@ -67,7 +57,7 @@ Everything CloudCal supports plus the XL5/TropiCal pathway:
 If you use this fork, please cite both the upstream CloudCal and this fork:
 
 * CloudCal: Drake, B.L. 2018. *CloudCal v3.0*. GitHub. doi: 10.5281/zenodo.2596154.
-* This fork: cloudCal‑XL5-fork, version/tag, GitHub: 
+* This fork: cloudCal‑XL5-fork v1.0. GitHub. 
 
 ---
 
