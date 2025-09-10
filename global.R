@@ -1,154 +1,32 @@
 cloudcal <- "Loaded"
 
+Sys.setenv(OMP_NUM_THREADS="1", OPENBLAS_NUM_THREADS="1", MKL_NUM_THREADS="1", BLIS_NUM_THREADS="1")
+
 get_os <- function(){
-    sysinf <- Sys.info()
-    if (!is.null(sysinf)){
-        os <- sysinf['sysname']
-        if (os == 'Darwin')
-        os <- "osx"
-    } else { ## mystery machine
-        os <- .Platform$OS.type
-        if (grepl("^darwin", R.version$os))
-        os <- "osx"
-        if (grepl("linux-gnu", R.version$os))
-        os <- "linux"
-    }
-    tolower(os)
+  sysinf <- Sys.info()
+  if (!is.null(sysinf)){
+    os <- sysinf['sysname']
+    if (os == 'Darwin')
+      os <- "osx"
+  } else { ## mystery machine
+    os <- .Platform$OS.type
+    if (grepl("^darwin", R.version$os))
+      os <- "osx"
+    if (grepl("linux-gnu", R.version$os))
+      os <- "linux"
+  }
+  tolower(os)
 }
+
 
 tryCatch(options(java.parameters = c("-XX:+UseConcMarkSweepGC", "-Xmx81920m")), error=function(e) NULL)
-#options(repos = BiocInstaller::biocinstallRepos())
-#getOption("repos")
-#options(download.file.method="libcurl", url.method="libcurl")
-if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")
-list.of.bioconductor <- c("graph", "RBGL", "Rgraphviz")
-new.bioconductor <- list.of.bioconductor[!(list.of.bioconductor %in% installed.packages()[,"Package"])]
-#if(length(new.bioconductor)) source("https://www.bioconductor.org/biocLite.R")
-if(length(new.bioconductor)) BiocManager::install(new.bioconductor)
-
-
-
-list.of.packages <- c("backports", "mgsub", "pbapply", "reshape2", "TTR", "dplyr", "ggtern",  "shiny", "rhandsontable", "random", "DT", "shinythemes", "broom", "shinyjs", "gridExtra", "dtplyr", "formattable", "XML", "corrplot", "scales", "rmarkdown", "markdown",  "httpuv", "stringi", "reticulate", "devtools", "randomForest", "caret", "data.table", "mvtnorm", "DescTools",  "doSNOW", "doParallel", "baseline",  "pls", "prospectr", "stringi", "ggplot2", "compiler", "itertools", "foreach", "grid", "nnet", "neuralnet", "xgboost", "reshape", "magrittr", "reactlog", "Metrics", "strip", "bartMachine", "arm", "brnn", "kernlab", "rBayesianOptimization", "magrittr", "smooth", "smoother", "ggrepel", "tibble", "purrr", "remotes", "tidyverse", "tools", "shinycssloaders", "openxlsx")
-new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
-if(get_os()!="linux"){
-    if(length(new.packages)) lapply(new.packages, function(x) install.packages(x, repos="http://cran.rstudio.com/", dep = TRUE, ask=FALSE, type="binary"))
-} else if(get_os()=="linux"){
-    if(length(new.packages)) lapply(new.packages, function(x) install.packages(x, repos="http://cran.rstudio.com/", dep = TRUE, ask=FALSE, type="source"))
-}
-
-#if(!"caret" %in% installed.packages()[,"Package"]){
-#    if(get_os()=="windows"){
-#        tryCatch(install.packages("https://github.com/leedrake5/CloudCal/raw/master/Packages/caret_6.0-93.1.zip", repos=NULL, type="win.binary"), error=function(e) tryCatch(remotes::install_github("leedrake5/caret", subdir="pkg/caret"), error=function(e) NULL))
-#        } else if(get_os()!="windows"){
-#            tryCatch(install.packages("https://github.com/leedrake5/CloudCal/raw/master/Packages/caret_6.0-93.1.tar.gz", type="source", repos=NULL), error=function(e) NULL)
-#        }
-#} else {
-#    if(packageVersion("caret")!="6.0.93.1"){
-#        if(get_os()!="windows"){
-#        tryCatch(install.packages("https://github.com/leedrake5/CloudCal/raw/master/Packages/caret_6.0-93.1.zip", repos=NULL, type="win.binary"), error=function(e) NULL)
-#        } else if(get_os()!="windows"){
-#            tryCatch(install.packages("https://github.com/leedrake5/CloudCal/raw/master/Packages/caret_6.0-93.1.tar.gz", type="source", repos=NULL), error=function(e) NULL)
-#        }
-#    }
-#    }
-
-
-#if(!"xrftools" %in% installed.packages()[,"Package"]){
-#    tryCatch(devtools::install_github("paleolimbot/xrftools"), error=function(e) NULL)
-#}
-
-
-
-#if(packageVersion("ggplot2")!="2.2.1") devtools::install_version("ggplot2", version = "2.2.1", repos = "http://cran.us.r-project.org", checkBuilt=TRUE)
-
-
-if("caret" %in% installed.packages()[,"Package"]==FALSE && get_os()=="windows"){
-        tryCatch(install.packages("https://github.com/leedrake5/CloudCal/raw/master/Packages/caret_6.0.93.1.zip", repos=NULL, type="win.binary"), error=function(e) tryCatch(remotes::install_github("leedrake5/caret", subdir="pkg/caret"), error=function(e) NULL))
-    } else if ("caret" %in% installed.packages()[,"Package"]==FALSE && get_os()=="osx"){
-        if(Sys.info()[["machine"]]=="arm64"){
-            tryCatch(install.packages("https://github.com/leedrake5/CloudCal/raw/master/Packages/caret_6.0.93.1_arm64_macos.tgz", type="binary", repos=NULL), error=function(e) tryCatch(remotes::install_github("leedrake5/caret", subdir="pkg/caret"), error=function(e) NULL))
-        } else {
-            tryCatch(install.packages("https://github.com/leedrake5/CloudCal/raw/master/Packages/caret_6.0.93.1_x86_64_macos.tgz", type="binary", repos=NULL), error=function(e)  tryCatch(remotes::install_github("leedrake5/caret", subdir="pkg/caret"), error=function(e) NULL))
-            }
-    } else if ("caret" %in% installed.packages()[,"Package"]==FALSE && get_os()=="linux"){
-        tryCatch(install.packages("https://github.com/leedrake5/CloudCal/raw/master/Packages/caret_6.0.93.1.tar.gz", type="source", repos=NULL), error=function(e) tryCatch(remotes::install_github("leedrake5/caret", subdir="pkg/caret"), error=function(e) NULL))
-    }
-
-if(packageVersion("caret")!="6.0.93.1" && get_os()=="windows"){
-        tryCatch(install.packages("https://github.com/leedrake5/CloudCal/raw/master/Packages/caret_6.0.93.1.zip", repos=NULL, type="win.binary"), error=function(e) tryCatch(remotes::install_github("leedrake5/caret", subdir="pkg/caret"), error=function(e) NULL))
-    } else if (packageVersion("caret")!="6.0.93.1" && get_os()=="osx"){
-        if(Sys.info()[["machine"]]=="arm64"){
-            #tryCatch(install.packages("https://github.com/leedrake5/CloudCal/raw/master/Packages/caret_6.0-93.1_arm64_macos.tgz", type="binary", repos=NULL), error=function(e) tryCatch(remotes::install_github("leedrake5/caret", subdir="pkg/caret"), error=function(e) NULL))
-        } else {
-            tryCatch(install.packages("https://github.com/leedrake5/CloudCal/raw/master/Packages/caret.6.0-93.1_x86_64_macos.tgz", type="binary", repos=NULL), error=function(e)  tryCatch(remotes::install_github("leedrake5/caret", subdir="pkg/caret"), error=function(e) NULL))
-            }
-    } else if (packageVersion("caret")!="6.0.93.1" && get_os()=="linux"){
-        tryCatch(install.packages("https://github.com/leedrake5/CloudCal/raw/master/Packages/caret_6.0.93.1.tar.gz", type="source", repos=NULL), error=function(e) tryCatch(remotes::install_github("leedrake5/caret", subdir="pkg/caret"), error=function(e) NULL))
-    }
-
-if("rPDZ" %in% installed.packages()[,"Package"]==FALSE && get_os()=="windows"){
-        tryCatch(install.packages("https://github.com/leedrake5/CloudCal/raw/master/Packages/rPDZ_1.6.zip", repos=NULL, type="win.binary"), error=function(e) tryCatch(remotes::install_github("leedrake5/rPDZ"), error=function(e) NULL))
-    } else if ("rPDZ" %in% installed.packages()[,"Package"]==FALSE && get_os()=="osx"){
-        if(Sys.info()[["machine"]]=="arm64"){
-            tryCatch(install.packages("https://github.com/leedrake5/CloudCal/raw/master/Packages/rPDZ_1.6_arm64_macos.tgz", type="binary", repos=NULL), error=function(e) tryCatch(remotes::install_github("leedrake5/rPDZ"), error=function(e) NULL))
-        } else {
-            tryCatch(remotes::install_github("leedrake5/rPDZ"), error=function(e) NULL)
-            }
-    } else if ("rPDZ" %in% installed.packages()[,"Package"]==FALSE && get_os()=="linux"){
-        tryCatch(install.packages("https://github.com/leedrake5/CloudCal/raw/master/Packages/rPDZ_1.6.tar.gz", type="source", repos=NULL), error=function(e) tryCatch(remotes::install_github("leedrake5/rPDZ"), error=function(e) NULL))
-    }
-
-if(packageVersion("rPDZ")!="1.6" && get_os()=="windows"){
-    tryCatch(install.packages("https://github.com/leedrake5/CloudCal/raw/master/Packages/rPDZ_1.6.zip", repos=NULL, type="win.binary"), error=function(e) tryCatch(remotes::install_github("leedrake5/rPDZ"), error=function(e) NULL))
-} else if (packageVersion("rPDZ")!="1.6" && get_os()=="osx"){
-    if(Sys.info()[["machine"]]=="arm64"){
-        tryCatch(install.packages("https://github.com/leedrake5/CloudCal/raw/master/Packages/rPDZ_1.6_arm64_macos.tgz", type="binary", repos=NULL), error=function(e) tryCatch(remotes::install_github("leedrake5/rPDZ"), error=function(e) NULL))
-    } else {
-        tryCatch(remotes::install_github("leedrake5/rPDZ"), error=function(e) NULL)
-        }
-} else if (packageVersion("rPDZ")!="1.6" && get_os()=="linux"){
-    tryCatch(install.packages("https://github.com/leedrake5/CloudCal/raw/master/Packages/rPDZ_1.6.tar.gz", type="source", repos=NULL), error=function(e) tryCatch(remotes::install_github("leedrake5/rPDZ"), error=function(e) NULL))
-}
-
-
-if("Peaks" %in% installed.packages()[,"Package"]==FALSE && get_os()=="windows"){
-    tryCatch(install.packages("https://github.com/leedrake5/CloudCal/raw/master/Packages/Peaks_0.2.zip", repos=NULL, type="win.binary"), error=function(e) tryCatch(remotes::install_github("cran/Peaks"), error=function(e) NULL))
-} else if ("Peaks" %in% installed.packages()[,"Package"]==FALSE && get_os()=="osx"){
-    tryCatch(install.packages("https://github.com/leedrake5/CloudCal/raw/master/Packages/Peaks_0.2.tgz", type="binary", repos=NULL), error=function(e) tryCatch(remotes::install_github("cran/Peaks"), error=function(e) NULL))
-} else if ("Peaks" %in% installed.packages()[,"Package"]==FALSE && get_os()=="linux"){
-    tryCatch(install.packages("https://github.com/leedrake5/CloudCal/raw/master/Packages/Peaks_0.2.tar.gz", type="source", repos=NULL), error=function(e) tryCatch(remotes::install_github("cran/Peaks"), error=function(e) NULL))
-}
-
-if("xrftools" %in% installed.packages()[,"Package"]==FALSE && get_os()=="windows"){
-    tryCatch(install.packages("https://github.com/leedrake5/CloudCal/raw/master/Packages/xrftools_0.0.1.9000.zip", repos=NULL, type="win.binary"), error=function(e) tryCatch(remotes::install_github("paleolimbot/xrftools"), error=function(e) NULL))
-} else if ("xrftools" %in% installed.packages()[,"Package"]==FALSE && get_os()=="osx"){
-    if(Sys.info()[["machine"]]=="arm64"){
-        tryCatch(install.packages("https://github.com/leedrake5/CloudCal/raw/master/Packages/xrftools_0.0.1.9000_arm64.tar.gz", type="source", repos=NULL), error=function(e) tryCatch(remotes::install_github("paleolimbot/xrftools"), error=function(e) NULL))
-    } else {
-        tryCatch(install.packages("https://github.com/leedrake5/CloudCal/raw/master/Packages/xrftools_0.0.1.9000.tgz", type="binary", repos=NULL), error=function(e) tryCatch(remotes::install_github("paleolimbot/xrftools"), error=function(e) NULL))
-    }
-} else if ("xrftools" %in% installed.packages()[,"Package"]==FALSE && get_os()=="linux"){
-    tryCatch(install.packages("https://github.com/leedrake5/CloudCal/raw/master/Packages/xrftools_0.0.1.9000.tar.gz", type="source", repos=NULL), error=function(e) tryCatch(remotes::install_github("paleolimbot/xrftools"), error=function(e) NULL))
-}
-
-
-
-
-#sourceCpp("pdz.cpp")
-
 tryCatch(library(rPDZ), error=function(e) NULL)
 library(reactlog)
 options(shiny.reactlog = TRUE)
 shiny::devmode(FALSE)
 options(shiny.fullstacktrace=TRUE)
-###update packages
-#update.packages(repos='http://cran.rstudio.com/', ask=FALSE)
-
-###Old ggplot2
-#devtools::install_version("ggplot2", version = "2.2.1", repos = "http://cran.us.r-project.org", checkBuilt=TRUE)
 
 
-#sudo su - -c "R -e \"install.packages(c('shiny', 'pbapply', 'reshape2', 'TTR', 'dplyr', 'ggtern', 'ggplot2', 'shiny', 'rhandsontable', 'random', 'data.table', 'DT', 'shinythemes', 'Cairo', 'broom', 'shinyjs', 'gridExtra', 'dtplyr', 'formattable', 'XML', 'corrplot', 'scales', 'rmarkdown', 'markdown', 'randomForest', 'doMC', 'caret'), repos='http://cran.rstudio.com/')\""
 library(tools)
 library(grid)
 library(shiny)
@@ -159,7 +37,6 @@ library(reshape2)
 library(dplyr)
 library(DT)
 library(XML)
-#library(gRbase)
 library(reticulate)
 library(Rcpp)
 library(data.table)
@@ -179,13 +56,11 @@ library(Metrics)
 tryCatch(library(taRifx), error=function(e) NULL)
 library(strip)
 tryCatch(library(mgsub), error=function(e) NULL)
-#tryCatch(library(bartMachine), error=function(e) NULL)
 tryCatch(library(arm), error=function(e) NULL)
 tryCatch(library(brnn), error=function(e) NULL)
 library(kernlab)
 tryCatch(library(rBayesianOptimization), error=function(e) NULL)
 tryCatch(library(xrftools), error=function(e) NULL)
-#tryCatch(library(tidyverse))
 library(magrittr)
 library(Peaks)
 enableJIT(3)
@@ -203,8 +78,12 @@ library(DescTools)
 library(pls)
 library(shinycssloaders)
 
-#source("xgbTree.R")
-#source("xgbDART.R")
+
+
+
+options(shiny.reactlog = TRUE)
+shiny::devmode(FALSE)
+options(shiny.fullstacktrace=TRUE)
 
 
 options(digits=12)
@@ -214,11 +93,36 @@ unregister_dopar <- function() {
   rm(list=ls(name=env), pos=env)
 }
 
-my.cores <- if(parallel::detectCores()>=3){
-    paste0(parallel::detectCores()-2)
-} else if(parallel::detectCores()<=2){
-    "1"
+get_available_cores <- function() {
+  # Try cgroup v2: /sys/fs/cgroup/cpu.max = "<quota> <period>" or "max <period>"
+  p <- "/sys/fs/cgroup/cpu.max"
+  if (file.exists(p)) {
+    line <- tryCatch(readLines(p, warn = FALSE)[1], error = function(e) "")
+    parts <- strsplit(trimws(line), "\\s+")[[1]]
+    if (length(parts) >= 2 && parts[1] != "max") {
+      quota  <- suppressWarnings(as.numeric(parts[1]))
+      period <- suppressWarnings(as.numeric(parts[2]))
+      if (is.finite(quota) && is.finite(period) && period > 0) {
+        n <- floor(quota / period)
+        if (n >= 1) return(n)
+      }
+    }
+  }
+  
+  # Fallback to detectCores (may overreport or be NA)
+  n <- suppressWarnings(tryCatch(parallel::detectCores(logical = FALSE), error = function(e) NA_integer_))
+  if (!is.finite(n) || n < 1) n <- 1L
+  n
 }
+
+my.cores <- get_available_cores()
+
+
+# my.cores <- if(parallel::detectCores()>=3){
+#     paste0(parallel::detectCores()-2)
+# } else if(parallel::detectCores()<=2){
+#     "1"
+# }
 
 source('file_loading.R')
 #tryCatch(source('file_loading.R'), error=function(e) source("https://raw.githubusercontent.com/leedrake5/CloudCal/master/file_loading.R"))

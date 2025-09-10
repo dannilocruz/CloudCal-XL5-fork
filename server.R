@@ -37,7 +37,7 @@ shinyServer(function(input, output, session) {
     
     output$filetypeui <- renderUI({
         if(is.null(input$calfileinput)){
-            selectInput("filetype", label="Filetype", c("CSV", "Aggregate CSV File", "TXT", "Net", "Elio", "MCA", "SPX", "PDZ", "XL5"), selected="CSV")
+            selectInput("filetype", label="Filetype", c("CSV", "Aggregate CSV File", "TXT", "Net", "Elio", "MCA", "SPX", "PDZ", "XL5"), selected="XL5")
         } else if(!is.null(input$calfileinput)){
             selectInput("filetype", label="Filetype", c("CSV", "Aggregate CSV File", "TXT", "Net", "Elio", "MCA", "SPX", "PDZ", "XL5"), selected=oldCalCompatibility())
         }
@@ -72,7 +72,7 @@ shinyServer(function(input, output, session) {
             fileInput('file1', 'Choose PDZ File', multiple=TRUE,
             accept=c(".pdz"))
         } else if(input$filetype=="XL5") {
-            fileInput('file1', 'Choose CSV File from tropiCal', multiple=TRUE,
+            fileInput('file1', 'Choose CSV File from TropiCal', multiple=TRUE,
             accept=c(".csv"))
         }
     })
@@ -18191,7 +18191,7 @@ content = function(file){
             fileInput('loadvaldata', 'Choose PDZ File', multiple=TRUE,
             accept=c(".pdz"))
         } else if(input$valfiletype=="XL5") {
-            fileInput('loadvaldata', 'Choose CSV file from tropiCal', multiple=TRUE,
+            fileInput('loadvaldata', 'Choose CSV file from TropiCal', multiple=TRUE,
             accept=c(".csv"))
         }
         
@@ -18201,7 +18201,7 @@ content = function(file){
     output$valfiletypeui <- renderUI({
         
         if(is.null(input$calfileinput2)){
-            selectInput("valfiletype", label="Filetype", c("CSV", "Aggregate CSV File", "TXT", "Net", "Elio", "MCA", "SPX", "PDZ", "XL5"), selected="CSV")
+            selectInput("valfiletype", label="Filetype", c("CSV", "Aggregate CSV File", "TXT", "Net", "Elio", "MCA", "SPX", "PDZ", "XL5"), selected="XL5")
         } else if(!is.null(input$calfileinput2)){
             selectInput("valfiletype", label="Filetype", c("CSV", "Aggregate CSV File", "TXT", "Net", "Elio", "MCA", "SPX", "PDZ", "XL5"), selected=calFileContents2()[["FileType"]])
         
