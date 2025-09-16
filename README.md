@@ -55,7 +55,7 @@ Everything CloudCal supports plus `.csv` files from TropiCal:
 
 If you use this fork, please cite both CloudCal and CloudCal-XL5:
 
-* CloudCal: Lee Drake. (2019). leedrake5/CloudCal: Neural Networks (v3.0). Zenodo. https://doi.org/10.5281/zenodo.2596154
+* Lee Drake. (2019). leedrake5/CloudCal: Neural Networks (v3.0). Zenodo. https://doi.org/10.5281/zenodo.2596154
 * Cruz, D. J. N. (2025). CloudCal-XL5 (v1.0). Zenodo. https://doi.org/10.5281/zenodo.17137170
 
 ---
