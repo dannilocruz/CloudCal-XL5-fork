@@ -1,9 +1,10 @@
 # CloudCal-XL5
 
-Unofficial fork of CloudCal, adapted for Thermo Scientific Niton XL5 analyzers. Not affiliated with the original maintainers.
+Unofficial fork of [CloudCal](https://github.com/leedrake5/CloudCal) tailored for for Thermo Scientific™ Niton™ XL5 Plus handheld analyzers.<br>
+Not affiliated with or endorsed by Thermo Fisher Scientific.
 
 
->**Repository:** cloudCal-XL5-fork<br>
+>**Repository:** CloudCal-XL5-fork<br>
 >**Upstream project:** CloudCal (GPL-3.0)<br>
 >**License:** GPL-3.0
 
@@ -12,13 +13,13 @@ Unofficial fork of CloudCal, adapted for Thermo Scientific Niton XL5 analyzers. 
 ## How to use
 
 * Website: https://cloudcalxl5.danilocruz.earth
-* Containers (Docker Hub): dannilocruz/cloudcal-xl5-fork
+* Containers (Docker Hub): [dannilocruz/cloudcal-xl5-fork](https://hub.docker.com/repository/docker/dannilocruz/cloudcal-xl5-fork/general)
 
 ---
 
-## What is this fork?
+## What CloudCal-XL5 does
 
-cloudCal-XL5 is an unofficial fork of the [CloudCal](https://github.com/leedrake5/CloudCal) app tailored for Thermo Scientific Niton XL5 pXRF workflows. It is designed to interoperate with [TropiCal](https://github.com/dannilocruz/TropiCal):
+CloudCal-XL5 is designed to interoperate with [TropiCal](https://github.com/dannilocruz/TropiCal):
 
 * TropiCal exports XL5 raw spectra (with metadata),
 * cloudCal‑XL5 builds empirical calibrations and produces `.quant` files, and
@@ -46,18 +47,16 @@ Everything CloudCal supports plus `.csv` files from TropiCal:
 
 ## Related repositories
 
-* CloudCal (upstream): [https://github.com/leedrake5/CloudCal](https://github.com/leedrake5/CloudCal)
-* CloudCal‑XL5‑fork (this repo): [https://github.com/dannilocruz/CloudCal-XL5-fork](https://github.com/dannilocruz/CloudCal-XL5-fork)
 * TropiCal (companion app): [https://github.com/dannilocruz/TropiCal](https://github.com/dannilocruz/TropiCal)
 
 ---
 
 ## Citing
 
-If you use this fork, please cite both the upstream CloudCal and this fork:
+If you use this fork, please cite both CloudCal and CloudCal-XL5:
 
-* CloudCal: Drake, B.L. 2018. *CloudCal v3.0*. GitHub. doi: 10.5281/zenodo.2596154.
-* This fork: cloudCal‑XL5-fork v1.0. GitHub. 
+* CloudCal: Lee Drake. (2019). leedrake5/CloudCal: Neural Networks (v3.0). Zenodo. https://doi.org/10.5281/zenodo.2596154
+* Cruz, D. J. N. (2025). CloudCal-XL5 (v1.0). Zenodo. https://doi.org/10.5281/zenodo.17137170
 
 ---
 
@@ -71,13 +70,12 @@ See `LICENSE` for details.
 
 ---
 
-## Acknowledgments
-
-* CloudCal creators and contributors for the original project.
-* Users and collaborators providing XL5 datasets and feedback.
-
----
-
 ## Contributing & Support
 
 This is an unofficial fork. For XL5/TropiCal‑specific issues and enhancements, please use this repository’s Issues. For (non‑XL5) concerns, refer to the original CloudCal project.
+
+## Disclaimer
+
+- CloudCal-XL5 is provided “as is” without warranty of any kind, express or implied. It is intended for research and educational use.
+- CloudCal-XL5 is not affiliated with or endorsed by Thermo Fisher Scientific. *Thermo Scientific™* and *Niton™* are trademarks of Thermo Fisher Scientific and its affiliates, used here for identification only.
+- CloudCal-XL5 is not affiliated with the original CloudCal maintainers.
