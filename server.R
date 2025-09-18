@@ -10292,18 +10292,18 @@ shinyServer(function(input, output, session) {
         plotDimensions <- reactive({
             
             if(input$imagesize=="Small"){
-                c(6, 6)
+                c(8, 4)
             } else if(input$imagesize=="Large"){
-                c(8, 8)
+                c(12, 6)
             }
             
         })
         
         
         output$downloadcloudplot <- downloadHandler(
-        filename = function() { paste(paste(c(input$calname, "_", input$calcurveelement), collapse=''), '.tiff',  sep='') },
+        filename = function() { paste(paste(c(input$calname, "_", input$calcurveelement), collapse=''), '.pdf',  sep='') },
         content = function(file) {
-            ggsave(file,calPlotDownload(), device="tiff", compression="lzw",  dpi=300, width=plotDimensions()[1], height=plotDimensions()[2])
+            ggsave(file,calPlotDownload(), device="pdf", dpi=300, width=plotDimensions()[1], height=plotDimensions()[2])
         }
         )
         
