@@ -3061,13 +3061,13 @@ shinyServer(function(input, output, session) {
         output$comptonMinInput <- renderUI({
             req(input$radiocal)
             #numericInput('comptonmin', label=h6("Min"), step=0.001, value=normMinSelection(), min=0, max=50, width='30%')
-            numericInput('comptonmin', label=h6("Min"), step=0.001, value=20.5, min=0, max=50, width='30%')
+            numericInput('comptonmin', label=h6("Min"), step=0.001, value=20, min=0, max=50, width='30%')
         })
         
         output$comptonMaxInput <- renderUI({
             req(input$radiocal)
             #numericInput('comptonmax', label=h6("Max"), step=0.001, value=normMaxSelection(), min=0, max=50, width='30%')
-            numericInput('comptonmax', label=h6("Max"), step=0.001, value=21.5, min=0, max=50, width='30%')
+            numericInput('comptonmax', label=h6("Max"), step=0.001, value=22, min=0, max=50, width='30%')
         })
         
         
