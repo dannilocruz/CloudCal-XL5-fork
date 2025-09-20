@@ -652,6 +652,7 @@ shinyServer(function(input, output, session) {
         datasetInput <- reactive({
             req(input$element)
             switch(input$element,
+            "None" = NULL,
             "H.table" = H.table,
             "He.table" = He.table,
             "Li.table" = Li.table,
@@ -1134,82 +1135,119 @@ shinyServer(function(input, output, session) {
                 
             })
             
+
             spectraWithLabels <- reactive({
-                
-                data <- spectraPlotData()
-                
-                
-                id.seq <- seq(1, 2048,1)
-                
-                n <- length(data$Energy)
-                
-                element <- datasetInput()
-                intensity.norm <- (element$Intensity/max(element$Intensity))*max(data$CPS)
-                element$Intensity <- intensity.norm
-                intensity.base <- (element$Intensity/max(element$Intensity))
-                
-                
-                qplot(data$Energy, data$CPS, xlab = "Energy (keV)", ylab = yLabel(), geom="line", colour=data$Spectrum) +
+              data <- spectraPlotData()
+              
+              # base spectrum only
+              p <- qplot(
+                data$Energy, data$CPS,
+                xlab = "Energy (keV)", ylab = yLabel(),
+                geom = "line", colour = data$Spectrum
+              ) +
                 theme_light(base_size = 15) +
-                theme(legend.position="bottom") +
-                geom_segment(data=element, aes(x=Line, xend=Line, y = 0, yend=Intensity), colour="grey50", linetype=2)  +
+                theme(legend.position = "bottom") +
                 scale_colour_discrete("Spectrum") +
                 coord_cartesian(xlim = ranges$x, ylim = ranges$y)
+              
+              # add markers only if an element table is selected
+              element <- datasetInput()
+              if (!is.null(element) && nrow(element) > 0) {
+                # scale marker heights to spectrum max
+                maxCPS <- max(data$CPS, na.rm = TRUE)
+                maxI   <- max(element$Intensity, na.rm = TRUE)
+                element$Intensity <- (element$Intensity / maxI) * maxCPS
                 
-                
+                p <- p + geom_segment(
+                  data = element,
+                  aes(x = Line, xend = Line, y = 0, yend = Intensity),
+                  inherit.aes = FALSE,    # don’t inherit colour mapping from the spectrum
+                  colour = "grey50",
+                  linetype = 2
+                )
+              }
+              
+              p
             })
             
+            
             spectraNoLabels <- reactive({
-                
-                data <- spectraPlotData()
-                
-                
-                id.seq <- seq(1, 2048,1)
-                
-                n <- length(data$Energy)
-                
-                element <- datasetInput()
-                intensity.norm <- (element$Intensity/max(element$Intensity))*max(data$CPS)
-                element$Intensity <- intensity.norm
-                intensity.base <- (element$Intensity/max(element$Intensity))
-                
-                qplot(data$Energy, data$CPS, xlab = "Energy (keV)", ylab = yLabel(), geom="line", colour=data$Spectrum) +
+              data <- spectraPlotData()
+              
+              # base spectrum (no legend)
+              p <- qplot(
+                data$Energy, data$CPS,
+                xlab = "Energy (keV)", ylab = yLabel(),
+                geom = "line", colour = data$Spectrum
+              ) +
                 theme_light(base_size = 15) +
-                theme(legend.position="bottom") +
-                geom_segment(data=element, aes(x=Line, xend=Line, y = 0, yend=Intensity), colour="grey50", linetype=2)  +
+                theme(legend.position = "bottom") +
                 scale_colour_discrete("Spectrum") +
                 coord_cartesian(xlim = ranges$x, ylim = ranges$y) +
-                guides(colour=FALSE)
+                guides(colour = FALSE)
+              
+              # add vertical markers only if an element table is selected
+              element <- datasetInput()
+              if (!is.null(element) && nrow(element) > 0) {
+                maxCPS <- max(data$CPS, na.rm = TRUE)
+                maxI   <- max(element$Intensity, na.rm = TRUE)
                 
+                if (is.finite(maxI) && maxI > 0 && is.finite(maxCPS) && maxCPS > 0) {
+                  element$Intensity <- (element$Intensity / maxI) * maxCPS
+                } else {
+                  element$Intensity <- 0
+                }
                 
+                p <- p + geom_segment(
+                  data = element,
+                  aes(x = Line, xend = Line, y = 0, yend = Intensity),
+                  inherit.aes = FALSE,
+                  colour = "grey50",
+                  linetype = 2
+                )
+              }
+              
+              p
             })
             
             
             spectraSummaryPlot <- reactive({
-                
-                data <- spectraPlotData()
-                
-                data.summary <- spectraSummary()
-                
-                id.seq <- seq(1, 2048,1)
-                
-                n <- length(data$Energy)
-                
-                element <- datasetInput()
-                intensity.norm <- (element$Intensity/max(element$Intensity))*max(data.summary$Mean)
-                element$Intensity <- intensity.norm
-                intensity.base <- (element$Intensity/max(element$Intensity))
-                
-                ggplot(data.summary) +
-                geom_ribbon(aes(x=Energy, ymin=Min, ymax=Max), alpha=0.2, fill="#619CFF", colour="grey20") +
-                geom_line(aes(Energy, Mean), lty=2) +
-                geom_segment(data=element, aes(x=Line, xend=Line, y = 0, yend=Intensity), colour="grey50", linetype=2)  +
-                scale_x_continuous("Energy (keV)", breaks=scales::pretty_breaks()) +
+              data.summary <- spectraSummary()
+              
+              # base summary plot (ribbon + mean line)
+              p <- ggplot(data.summary) +
+                geom_ribbon(aes(x = Energy, ymin = Min, ymax = Max),
+                            alpha = 0.2, fill = "#619CFF", colour = "grey20") +
+                geom_line(aes(Energy, Mean), lty = 2) +
+                scale_x_continuous("Energy (keV)", breaks = scales::pretty_breaks()) +
                 scale_y_continuous(yLabel()) +
                 coord_cartesian(xlim = ranges$x, ylim = ranges$y) +
                 theme_light(base_size = 15)
+              
+              # optional element markers
+              element <- datasetInput()
+              if (!is.null(element) && nrow(element) > 0) {
+                maxMean <- max(data.summary$Mean, na.rm = TRUE)
+                maxI    <- max(element$Intensity, na.rm = TRUE)
                 
+                if (is.finite(maxI) && maxI > 0 && is.finite(maxMean) && maxMean > 0) {
+                  element$Intensity <- (element$Intensity / maxI) * maxMean
+                } else {
+                  element$Intensity <- 0
+                }
+                
+                p <- p + geom_segment(
+                  data = element,
+                  aes(x = Line, xend = Line, y = 0, yend = Intensity),
+                  inherit.aes = FALSE,
+                  colour = "grey50",
+                  linetype = 2
+                )
+              }
+              
+              p
             })
+            
             
             yLabel <- reactive({
                 if(input$normspectra==1){
@@ -1222,61 +1260,64 @@ shinyServer(function(input, output, session) {
                 
             })
             
+
             
             spectraAnomSummaryPlot <- reactive({
-                
-                data <- spectraPlotData()
-                
-                data.summary <- spectraSummary()
-                
-                id.seq <- seq(1, 2048,1)
-                
-                n <- length(data$Energy)
-                
-                element <- datasetInput()
-                intensity.norm <- (element$Intensity/max(element$Intensity))*max(data.summary$Mean)
-                element$Intensity <- intensity.norm
-                intensity.base <- (element$Intensity/max(element$Intensity))
-                
-                element_absorption <- absorptionInput()
-                element_absorption$Energy <- element_absorption$Energy
-                element_absorption <- element_absorption[element_absorption$Energy > my.min(data.summary$Energy) & element_absorption$Energy < my.max(data.summary$Energy),]
-                #element_absorption$f. <- element_absorption$f.*-1
-                f..norm <- (element_absorption$f../max(element_absorption$f..))*max(data.summary$Mean)
-                element_absorption$f.. <- f..norm
-                element_absorption$f.. <- element_absorption$f..*-1
-                element_absorption$Base <- 0
-                
-                element_scatter <- scatterInput()
-                element_scatter$Energy <- element_scatter$Energy
-                element_scatter <- element_scatter[element_scatter$Energy > my.min(data.summary$Energy) & element_scatter$Energy < my.max(data.summary$Energy),]
-                f.norm <- (element_scatter$f./max(element_scatter$f.))*max(data.summary$Mean)
-                element_scatter$f. <- f.norm
-                element_scatter$Base <- 0
-                
-                                
-                
-                
-                cols <- c("Absorption" = "red", "Scatter" = "blue", "Spectra" = "darkgreen")
-                
-                ggplot(data.summary) +
-                geom_ribbon(data=element_scatter, mapping=aes(x=Energy, ymin=Base, ymax=f./10, fill="Scatter (f')", colour="Scatter (f')"), alpha=0.2) +
-                geom_ribbon(data=element_absorption, mapping=aes(x=Energy, ymin=f.., ymax=Base, fill="Absorption (f'')", colour="Absorption (f'')"), alpha=0.2) +
-                geom_ribbon(aes(x=Energy, ymin=Min, ymax=Max, fill="Spectra", colour="Spectra"), alpha=0.2) +
-                geom_line(aes(Energy, Mean), lty=2) +
-                geom_segment(data=element, aes(x=Line, xend=Line, y = 0, yend=Intensity), colour="grey50", linetype=2)  +
-                scale_x_continuous("Energy (keV)", breaks=scales::pretty_breaks()) +
+              data <- spectraPlotData()
+              data.summary <- spectraSummary()
+              
+              element <- datasetInput()
+              
+              # Base plot (unchanged)
+              p <- ggplot(data.summary) +
+                geom_ribbon(data = element_scatter <- {
+                  x <- scatterInput()
+                  x$Energy <- x$Energy
+                  x <- x[x$Energy > my.min(data.summary$Energy) & x$Energy < my.max(data.summary$Energy), ]
+                  f.norm <- (x$f./max(x$f.))*max(data.summary$Mean)
+                  x$f. <- f.norm
+                  x$Base <- 0
+                  x
+                },
+                mapping = aes(x = Energy, ymin = Base, ymax = f./10,
+                              fill = "Scatter (f')", colour = "Scatter (f')"),
+                alpha = 0.2) +
+                geom_ribbon(data = element_absorption <- {
+                  x <- absorptionInput()
+                  x$Energy <- x$Energy
+                  x <- x[x$Energy > my.min(data.summary$Energy) & x$Energy < my.max(data.summary$Energy), ]
+                  f..norm <- (x$f../max(x$f..))*max(data.summary$Mean)
+                  x$f.. <- -f..norm
+                  x$Base <- 0
+                  x
+                },
+                mapping = aes(x = Energy, ymin = f.., ymax = Base,
+                              fill = "Absorption (f'')", colour = "Absorption (f'')"),
+                alpha = 0.2) +
+                geom_ribbon(aes(x = Energy, ymin = Min, ymax = Max, fill = "Spectra", colour = "Spectra"), alpha = 0.2) +
+                geom_line(aes(Energy, Mean), lty = 2) +
+                scale_x_continuous("Energy (keV)", breaks = scales::pretty_breaks()) +
                 scale_y_continuous(yLabel()) +
-                scale_colour_manual(
-                  values = cols,
-                  breaks = c("Absorption", "Scatter", "Spectra")
-                ) +
+                scale_colour_manual(values = c("Absorption" = "red", "Scatter" = "blue", "Spectra" = "darkgreen"),
+                                    breaks = c("Absorption", "Scatter", "Spectra")) +
                 coord_cartesian(xlim = ranges$x, ylim = ranges$y) +
                 theme_light(base_size = 15) +
-                theme(legend.position = c(0.9, 0.1), legend.title=element_blank()) +
-                  guides(colour = FALSE)
-                
-                
+                theme(legend.position = c(0.9, 0.1), legend.title = element_blank()) +
+                guides(colour = FALSE)
+              
+              # Add element markers ONLY if not "None"
+              if (!is.null(element) && nrow(element) > 0) {
+                element$Intensity <- (element$Intensity / max(element$Intensity)) * max(data.summary$Mean)
+                p <- p + geom_segment(
+                  data = element,
+                  aes(x = Line, xend = Line, y = 0, yend = Intensity),
+                  inherit.aes = FALSE,
+                  colour = "grey50",
+                  linetype = 2
+                )
+              }
+              
+              p
             })
             
             
@@ -1324,9 +1365,9 @@ shinyServer(function(input, output, session) {
             })
             
             output$downloadPlot <- downloadHandler(
-            filename = function() { paste(input$dataset, '.png', sep='') },
+            filename = function() { paste(input$dataset, '.pdf', sep='') },
             content = function(file) {
-                ggsave(file,plotInput(), width=input$plotwidth, height=input$plotheight)
+                ggsave(file,plotInput(), width=input$plotwidth, height=input$plotheight, device="pdf", dpi=300)
             }
             )
             
@@ -2168,9 +2209,9 @@ shinyServer(function(input, output, session) {
         })
         
         output$download_covarlines <- downloadHandler(
-        filename = function() { paste(paste(c(input$calname, "Line_Correlations"), collapse=''), '.tiff',  sep='') },
+        filename = function() { paste(paste(c(input$calname, "Line_Correlations"), collapse=''), '.pdf',  sep='') },
         content = function(file) {
-            ggsave(file,covarPlotLine(), device="tiff", compression="lzw",  dpi=300, width=18, height=7)
+            ggsave(file,covarPlotLine(), device="pdf", dpi=300, width=18, height=7)
         }
         )
         
@@ -2196,9 +2237,9 @@ shinyServer(function(input, output, session) {
         })
         
         output$download_covarlines_deconvoluted <- downloadHandler(
-        filename = function() { paste(paste(c(input$calname, "Line_Correlations_Deconvoluted"), collapse=''), '.tiff',  sep='') },
+        filename = function() { paste(paste(c(input$calname, "Line_Correlations_Deconvoluted"), collapse=''), '.pdf',  sep='') },
         content = function(file) {
-            ggsave(file,covarPlotLineDeconvoluted(), device="tiff", compression="lzw",  dpi=300, width=18, height=7)
+            ggsave(file,covarPlotLineDeconvoluted(), device="pdf", dpi=300, width=18, height=7)
         }
         )
         
@@ -2449,9 +2490,9 @@ shinyServer(function(input, output, session) {
         
         
         output$download_covarvalues <- downloadHandler(
-        filename = function() { paste(paste(c(input$calname, "_Value_Correlations"), collapse=''), '.tiff',  sep='') },
+        filename = function() { paste(paste(c(input$calname, "_Value_Correlations"), collapse=''), '.pdf',  sep='') },
         content = function(file) {
-            tiff(file, compression="lzw",  width=18, height=18)
+            pdf(file, width=18, height=18)
             covarPlotValues()
             dev.off()
         }
@@ -3576,9 +3617,9 @@ shinyServer(function(input, output, session) {
         })
         
         output$variablePlot <- downloadHandler(
-        filename = function() { paste0(input$calname, "_", input$calcurveelemenet , '_Variables', '.tiff', sep='') },
+        filename = function() { paste0(input$calname, "_", input$calcurveelemenet , '_Variables', '.pdf', sep='') },
         content = function(file) {
-            ggsave(file,variablesPlot(), width=plotDimensions()[1], height=plotDimensions()[2], device="tiff", compression="lzw",  dpi=300)
+            ggsave(file,variablesPlot(), width=plotDimensions()[1], height=plotDimensions()[2], device="pdf", dpi=300)
         }
         )
         
@@ -13810,9 +13851,9 @@ shinyServer(function(input, output, session) {
         
         
         output$downloadcloudplotrandom <- downloadHandler(
-        filename = function() { paste(paste(c(input$calname, "_", input$calcurveelement), collapse=''), '.tiff',  sep='') },
+        filename = function() { paste(paste(c(input$calname, "_", input$calcurveelement), collapse=''), '.pdf',  sep='') },
         content = function(file) {
-            ggsave(file,calPlotRandomDownload(), device="tiff", compression="lzw",  dpi=300, width=plotDimensionsRandom()[1], height=plotDimensionsRandom()[2])
+            ggsave(file,calPlotRandomDownload(), device="pdf", dpi=300, width=plotDimensionsRandom()[1], height=plotDimensionsRandom()[2])
         }
         )
         
@@ -14419,9 +14460,9 @@ shinyServer(function(input, output, session) {
         
         
         output$diagplots <- downloadHandler(
-        filename = function() { paste(input$calname, "_", input$calcurveelement, "_diag", ".tiff", sep='') },
+        filename = function() { paste(input$calname, "_", input$calcurveelement, "_diag", ".pdf", sep='') },
         content = function(file) {
-            ggsave(file,diagPlotDownload(), width=10, height=10, device="tiff", compression="lzw",  dpi=300, )
+            ggsave(file,diagPlotDownload(), width=10, height=10, device="pdf", dpi=300, )
         }
         )
         
@@ -16416,9 +16457,9 @@ observeEvent(input$actionprocess2_multi, {
         })
         
         output$variablePlot_multi <- downloadHandler(
-        filename = function() { paste0(input$calname_multi, "_", input$calcurveelemenet_multi , '_Variables', '.tiff', sep='') },
+        filename = function() { paste0(input$calname_multi, "_", input$calcurveelemenet_multi , '_Variables', '.pdf', sep='') },
         content = function(file) {
-            ggsave(file,variablesPlotMulti(), width=plotDimensions()[1], height=plotDimensions()[2], device="tiff", compression="lzw",  dpi=300)
+            ggsave(file,variablesPlotMulti(), width=plotDimensions()[1], height=plotDimensions()[2], device="pdf", dpi=300)
         }
         )
         
@@ -17993,9 +18034,9 @@ observeEvent(input$actionprocess2_multi, {
         
         
         output$downloadcloudplot_multi <- downloadHandler(
-        filename = function() { paste(paste(c(input$calname, "_", input$calcurveelement_multi), collapse=''), '.tiff',  sep='') },
+        filename = function() { paste(paste(c(input$calname, "_", input$calcurveelement_multi), collapse=''), '.pdf',  sep='') },
         content = function(file) {
-            ggsave(file,calPlotDownloadMulti(), device="tiff", compression="lzw",  dpi=300, width=plotDimensionsMulti()[1], height=plotDimensionsMulti()[2])
+            ggsave(file,calPlotDownloadMulti(), device="pdf", dpi=300, width=plotDimensionsMulti()[1], height=plotDimensionsMulti()[2])
         }
         )
         
@@ -18012,9 +18053,9 @@ observeEvent(input$actionprocess2_multi, {
         
         
         output$downloadcloudplot_multi_val <- downloadHandler(
-        filename = function() { paste(paste(c(input$calname, "_", input$calcurveelement_multi), collapse=''), '.tiff',  sep='') },
+        filename = function() { paste(paste(c(input$calname, "_", input$calcurveelement_multi), collapse=''), '.pdf',  sep='') },
         content = function(file) {
-            ggsave(file,calPlotDownloadMulti_val(), device="tiff", compression="lzw",  dpi=300, width=plotDimensionsMulti()[1], height=plotDimensionsMulti()[2])
+            ggsave(file,calPlotDownloadMulti_val(), device="pdf", dpi=300, width=plotDimensionsMulti()[1], height=plotDimensionsMulti()[2])
         }
         )
         

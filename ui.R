@@ -43,7 +43,9 @@ tags$hr(),
 
 element <- selectInput(
 "element", "Element:",
-c("(Ne) Neon" = "Ne.table",
+c(
+"None" = "None",
+"(Ne) Neon" = "Ne.table",
 "(Na) Sodium" = "Na.table",
 "(Mg) Magnesium" = "Mg.table",
 "(Al) Aluminum" = "Al.table",
@@ -125,7 +127,7 @@ c("(Ne) Neon" = "Ne.table",
 "(Th) Thorium" = "Th.table",
 "(Pa) Proactinum" = "Pa.table",
 "(U)  Uranium" = "U.table"),
-selected="Fe.table"),
+selected="None"),
 uiOutput("anomscatterokui"),
 uiOutput("anomscatterui"),
 
